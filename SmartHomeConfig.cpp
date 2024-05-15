@@ -16,8 +16,8 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     QHeaderView* header = treeWidget->header();
     header->hide();
 
-    addHomeButton   = new QPushButton();
-    addHomeButton->setText("Добавить дом");
+    addHouseButton   = new QPushButton();
+    addHouseButton->setText("Добавить дом");
 
     addRoomButton   = new QPushButton();
     addRoomButton->setText("Добавить комнату");
@@ -26,7 +26,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     addSensorButton->setText("Добавить датчик");
 
     QHBoxLayout* hLayout = new QHBoxLayout();
-    hLayout->addWidget(addHomeButton);
+    hLayout->addWidget(addHouseButton);
     hLayout->addWidget(addRoomButton);
     hLayout->addWidget(addSensorButton);
     hLayout->addStretch();
@@ -35,7 +35,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     vLayout->addLayout(hLayout);
     vLayout->addWidget(treeWidget);
 
-    connect(addHomeButton,   &QPushButton::clicked, this, &SmartHomeConfig::addHouse);
+    connect(addHouseButton,  &QPushButton::clicked, this, &SmartHomeConfig::addHouse);
     connect(addRoomButton,   &QPushButton::clicked, this, &SmartHomeConfig::addRoom);
     connect(addSensorButton, &QPushButton::clicked, this, &SmartHomeConfig::addSensor);
 }
