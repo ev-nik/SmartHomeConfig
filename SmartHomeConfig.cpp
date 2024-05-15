@@ -35,25 +35,25 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     vLayout->addLayout(hLayout);
     vLayout->addWidget(treeWidget);
 
-    connect(addHomeButton,   &QPushButton::clicked, this, &SmartHomeConfig::addHome);
+    connect(addHomeButton,   &QPushButton::clicked, this, &SmartHomeConfig::addHouse);
     connect(addRoomButton,   &QPushButton::clicked, this, &SmartHomeConfig::addRoom);
     connect(addSensorButton, &QPushButton::clicked, this, &SmartHomeConfig::addSensor);
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::addHome()
+void SmartHomeConfig::addHouse()
 {
-    QTreeWidgetItem* homeItem = new QTreeWidgetItem(treeWidget);
-    homeItem->setData(0, Qt::DisplayRole, "Дом");
+    QTreeWidgetItem* houseItem = new QTreeWidgetItem(treeWidget);
+    houseItem->setData(0, Qt::DisplayRole, "Дом");
 }
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::addRoom()
 {
-    QTreeWidgetItem* homeItem = treeWidget->currentItem();
+    QTreeWidgetItem* houseItem = treeWidget->currentItem();
 
-    QTreeWidgetItem* kitchenItem = new QTreeWidgetItem(homeItem);
-    kitchenItem->setData(0, Qt::DisplayRole, "Кухня");
+    QTreeWidgetItem* roomItem = new QTreeWidgetItem(houseItem);
+    roomItem->setData(0, Qt::DisplayRole, "Кухня");
 }
 //------------------------------------------------------------------------------------
 
@@ -62,6 +62,7 @@ void SmartHomeConfig::addSensor()
     QTreeWidgetItem* roomItem = treeWidget->currentItem();
 
     QTreeWidgetItem* bathroomtemperItem = new QTreeWidgetItem(roomItem);
-    bathroomtemperItem->setData(0, Qt::DisplayRole, "Датчик температуры");
+    bathroomtemperItem->setData(0, Qt::DisplayRole, "Датчик");
+
 }
 //------------------------------------------------------------------------------------

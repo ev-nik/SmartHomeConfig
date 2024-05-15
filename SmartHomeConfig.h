@@ -19,7 +19,7 @@ private:
     QPushButton* addSensorButton;
 
 public slots:
-    void addHome();
+    void addHouse();
     void addRoom();
     void addSensor();
 
