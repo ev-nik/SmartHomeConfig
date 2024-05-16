@@ -1,9 +1,11 @@
 #ifndef SMARTHOMECONFIG_H
 #define SMARTHOMECONFIG_H
+//------------------------------------------------------------------------------------
 
 #include <QWidget>
 #include <QTreeWidget>
 #include <QPushButton>
+//------------------------------------------------------------------------------------
 
 class SmartHomeConfig : public QWidget
 {
@@ -14,7 +16,7 @@ public:
 
 private:
     QTreeWidget* treeWidget;
-    QPushButton* addHomeButton;
+    QPushButton* addHouseButton;
     QPushButton* addRoomButton;
     QPushButton* addSensorButton;
 
@@ -22,10 +24,7 @@ public slots:
     void addHouse();
     void addRoom();
     void addSensor();
-
-
-
-
 };
+//------------------------------------------------------------------------------------
 
 #endif // SMARTHOMECONFIG_H

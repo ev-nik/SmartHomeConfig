@@ -7,11 +7,20 @@
 #include <QDebug>
 //------------------------------------------------------------------------------------
 
+enum
+{
+    House  = 1,
+    Room   = 2,
+    Sensor = 3
+};
+//------------------------------------------------------------------------------------
+
 SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 {
     setGeometry(40, 40, 500, 500);
 
     treeWidget = new QTreeWidget(this);
+    treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
     QHeaderView* header = treeWidget->header();
     header->hide();
@@ -45,6 +54,14 @@ void SmartHomeConfig::addHouse()
 {
     QTreeWidgetItem* houseItem = new QTreeWidgetItem(treeWidget);
     houseItem->setData(0, Qt::DisplayRole, "Дом");
+    houseItem->setData(0, Qt::UserRole, 1);
+
+//    Установить цвет фона/цвет текста/стиль текста
+//    houseItem->setData(0, Qt::BackgroundRole, QBrush(Qt::green));
+
+    houseItem->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
+
+    treeWidget->setCurrentItem(houseItem);
 }
 //------------------------------------------------------------------------------------
 
@@ -52,8 +69,23 @@ void SmartHomeConfig::addRoom()
 {
     QTreeWidgetItem* houseItem = treeWidget->currentItem();
 
+    if(houseItem == nullptr)
+    {
+        return;
+    }
+
+    if(houseItem->data(0, Qt::UserRole).toInt() != 1)
+    {
+        return;
+    }
+
     QTreeWidgetItem* roomItem = new QTreeWidgetItem(houseItem);
-    roomItem->setData(0, Qt::DisplayRole, "Кухня");
+    roomItem->setData(0, Qt::DisplayRole, "Комната");
+
+    // Задать признак(по признаку можно определить что за item)
+    roomItem->setData(0, Qt::UserRole, 2);
+
+    treeWidget->setCurrentItem(roomItem);
 }
 //------------------------------------------------------------------------------------
 
@@ -61,8 +93,20 @@ void SmartHomeConfig::addSensor()
 {
     QTreeWidgetItem* roomItem = treeWidget->currentItem();
 
-    QTreeWidgetItem* bathroomtemperItem = new QTreeWidgetItem(roomItem);
-    bathroomtemperItem->setData(0, Qt::DisplayRole, "Датчик");
+    if(roomItem == nullptr)
+    {
+        return;
+    }
 
+    if(roomItem->data(0, Qt::UserRole).toInt() != 2)
+    {
+        return;
+    }
+
+    QTreeWidgetItem* sensorItem = new QTreeWidgetItem(roomItem);
+    sensorItem->setData(0, Qt::DisplayRole, "Датчик");
+    sensorItem->setData(0, Qt::UserRole, 3);
+
+    treeWidget->setCurrentItem(sensorItem);
 }
 //------------------------------------------------------------------------------------
