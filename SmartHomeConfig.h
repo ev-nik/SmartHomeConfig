@@ -20,10 +20,16 @@ private:
     QPushButton* addRoomButton;
     QPushButton* addSensorButton;
 
+    QPushButton* deleteButton;
+
 public slots:
     void addHouse();
     void addRoom();
     void addSensor();
+
+    void deleteHouse();
+    void deleteRoom();
+    void deleteSensor();
 };
 //------------------------------------------------------------------------------------
 
