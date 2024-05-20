@@ -25,16 +25,18 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     QHeaderView* header = treeWidget->header();
     header->hide();
 
-    addHouseButton   = new QPushButton();
+    addHouseButton   = new QPushButton(this);
     addHouseButton->setText("Добавить дом");
 
-    addRoomButton   = new QPushButton();
+    addRoomButton   = new QPushButton(this);
     addRoomButton->setText("Добавить комнату");
+    addRoomButton->setEnabled(false);
 
-    addSensorButton = new QPushButton();
+    addSensorButton = new QPushButton(this);
     addSensorButton->setText("Добавить датчик");
+    addSensorButton->setEnabled(false);
 
-    deleteButton = new QPushButton();
+    deleteButton = new QPushButton(this);
     deleteButton->setText("Удалить");
 
     QHBoxLayout* hLayout1 = new QHBoxLayout();
@@ -48,13 +50,12 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     vLayout->addLayout(hLayout1);
     vLayout->addWidget(treeWidget);
 
-    connect(addHouseButton,  &QPushButton::clicked, this, &SmartHomeConfig::addHouse);
-    connect(addRoomButton,   &QPushButton::clicked, this, &SmartHomeConfig::addRoom);
-    connect(addSensorButton, &QPushButton::clicked, this, &SmartHomeConfig::addSensor);
+    connect(addHouseButton,  &QPushButton::clicked,     this, &SmartHomeConfig::addHouse);
+    connect(addRoomButton,   &QPushButton::clicked,     this, &SmartHomeConfig::addRoom);
+    connect(addSensorButton, &QPushButton::clicked,     this, &SmartHomeConfig::addSensor);
+    connect(deleteButton,    &QPushButton::clicked,     this, &SmartHomeConfig::deleteItem);
 
-    connect(deleteButton, &QPushButton::clicked, this, &SmartHomeConfig::deleteHouse);
-    connect(deleteButton, &QPushButton::clicked, this, &SmartHomeConfig::deleteRoom);
-    connect(deleteButton, &QPushButton::clicked, this, &SmartHomeConfig::deleteSensor);
+    connect(treeWidget,      &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::activButton);
 }
 //------------------------------------------------------------------------------------
 
@@ -119,87 +120,57 @@ void SmartHomeConfig::addSensor()
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::deleteHouse()
+void SmartHomeConfig::deleteItem()
 {
-    QTreeWidgetItem* houseItem = treeWidget->currentItem();
+    QTreeWidgetItem* item = treeWidget->currentItem();
 
-    if(houseItem == nullptr)
+    if(item == nullptr)
     {
         return;
     }
 
-    if(houseItem->data(0, Qt::UserRole).toInt() != House)
+    if(item->data(0, Qt::UserRole).toInt() == Room)
     {
-        return;
+        addSensorButton->setEnabled(false);
     }
 
-    delete houseItem;
+    if(item->data(0, Qt::UserRole).toInt() == House)
+    {
+        addRoomButton  ->setEnabled(false);
+    }
+
+    delete item;
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::deleteRoom()
+void SmartHomeConfig::activButton(QTreeWidgetItem *item, QTreeWidgetItem *previous)
 {
-    QTreeWidgetItem* roomItem = treeWidget->currentItem();
+    addRoomButton   ->setEnabled(false);
+    addSensorButton ->setEnabled(false);
 
-    if(roomItem == nullptr)
+    if(item == nullptr)
     {
         return;
     }
 
-    if(roomItem->data(0, Qt::UserRole).toInt() != Room)
-    {
-        return;
-    }
+    int itemType = item->data(0, Qt::UserRole).toInt();
 
-    delete roomItem;
+    switch(itemType)
+    {
+        case House:
+        {
+            addRoomButton  ->setEnabled(true);
+
+            break;
+        }
+        case Room:
+        {
+            addSensorButton->setEnabled(true);
+
+            break;
+        }
+
+        default: break;
+    }
 }
 //------------------------------------------------------------------------------------
-
-void SmartHomeConfig::deleteSensor()
-{
-    QTreeWidgetItem* sensorItem = treeWidget->currentItem();
-
-    if(sensorItem == nullptr)
-    {
-        return;
-    }
-
-    if(sensorItem->data(0, Qt::UserRole).toInt() != Sensor)
-    {
-        return;
-    }
-
-//    treeWidget->removeItemWidget(sensorItem, 0);
-
-    delete sensorItem;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

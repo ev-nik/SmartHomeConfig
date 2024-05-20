@@ -27,9 +27,8 @@ public slots:
     void addRoom();
     void addSensor();
 
-    void deleteHouse();
-    void deleteRoom();
-    void deleteSensor();
+    void deleteItem();
+    void activButton(QTreeWidgetItem *item, QTreeWidgetItem *previous);
 };
 //------------------------------------------------------------------------------------
 
