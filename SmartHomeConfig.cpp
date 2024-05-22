@@ -25,19 +25,22 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     QHeaderView* header = treeWidget->header();
     header->hide();
 
-    addHouseButton   = new QPushButton(this);
+    addHouseButton = new QPushButton(this);
     addHouseButton->setText("Добавить дом");
 
-    addRoomButton   = new QPushButton(this);
+    addRoomButton = new QPushButton(this);
     addRoomButton->setText("Добавить комнату");
-    addRoomButton->setEnabled(false);
+//    addRoomButton->setEnabled(false);
 
     addSensorButton = new QPushButton(this);
     addSensorButton->setText("Добавить датчик");
-    addSensorButton->setEnabled(false);
+//    addSensorButton->setEnabled(false);
 
     deleteButton = new QPushButton(this);
     deleteButton->setText("Удалить");
+//    deleteButton->setEnabled(false);
+
+    activButton(nullptr, nullptr);
 
     QHBoxLayout* hLayout1 = new QHBoxLayout();
     hLayout1->addWidget(addHouseButton);
@@ -147,11 +150,14 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item, QTreeWidgetItem *previo
 {
     addRoomButton   ->setEnabled(false);
     addSensorButton ->setEnabled(false);
+    deleteButton    ->setEnabled(false);
 
     if(item == nullptr)
     {
         return;
     }
+
+    deleteButton->setEnabled(true);
 
     int itemType = item->data(0, Qt::UserRole).toInt();
 
