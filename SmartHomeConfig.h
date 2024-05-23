@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QTreeWidget>
 #include <QPushButton>
+#include <QTableWidget>
 //------------------------------------------------------------------------------------
 
 class SmartHomeConfig : public QWidget
@@ -16,11 +17,17 @@ public:
 
 private:
     QTreeWidget* treeWidget;
+    QTableWidget* tableWidget;
+
     QPushButton* addHouseButton;
     QPushButton* addRoomButton;
     QPushButton* addSensorButton;
 
     QPushButton* deleteButton;
+
+    int val;
+
+
 
 public slots:
     void addHouse();
@@ -29,7 +36,11 @@ public slots:
 
     void deleteItem();
     void activButton(QTreeWidgetItem *item, QTreeWidgetItem *previous);
+    void showInfo(QTreeWidgetItem* item);
 };
+
+
+
 //------------------------------------------------------------------------------------
 
 #endif // SMARTHOMECONFIG_H
