@@ -28,7 +28,8 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
     PassportTable = new QTableWidget();
     PassportTable->setColumnCount(2);
-    PassportTable->setHorizontalHeaderLabels({"Наименование", "Значение"});
+//    PassportTable->horizontalHeader()->hide();
+    PassportTable->setHorizontalHeaderLabels({"Свойство", "Значение"});
     QHeaderView* headerView = PassportTable->horizontalHeader();
     headerView->setSectionResizeMode(QHeaderView::Stretch);
 
@@ -186,6 +187,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 {
     if(item == nullptr)
     {
+        PassportTable->setRowCount(0);
         return;
     }
 
@@ -209,6 +211,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->setItem(0, 0, name);
 //            tableWidget->setItem(0, 1, prop);
             QLineEdit* lineEdit = new QLineEdit();
+            lineEdit->setFrame(false);
             lineEdit->setText("ggggggggg");
             PassportTable->setCellWidget(0, 1, lineEdit);
 
