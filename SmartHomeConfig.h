@@ -16,8 +16,8 @@ public:
     SmartHomeConfig(QWidget* parent = nullptr);
 
 private:
-    QTreeWidget* treeWidget;
-    QTableWidget* tableWidget;
+    QTreeWidget*  ObjectsTree;
+    QTableWidget* PassportTable;
 
     QPushButton* addHouseButton;
     QPushButton* addRoomButton;
@@ -27,8 +27,6 @@ private:
 
     int val;
 
-
-
 public slots:
     void addHouse();
     void addRoom();
@@ -36,11 +34,8 @@ public slots:
 
     void deleteItem();
     void activButton(QTreeWidgetItem *item, QTreeWidgetItem *previous);
-    void showInfo(QTreeWidgetItem* item);
+    void showPassport(QTreeWidgetItem* item);
 };
-
-
-
 //------------------------------------------------------------------------------------
 
 #endif // SMARTHOMECONFIG_H
