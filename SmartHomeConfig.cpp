@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QLineEdit>
+#include <QFrame>
 //------------------------------------------------------------------------------------
 
 enum HouseObject
@@ -28,7 +29,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
     PassportTable = new QTableWidget();
     PassportTable->setColumnCount(2);
-//    PassportTable->horizontalHeader()->hide();
+    PassportTable->verticalHeader()->setVisible(false);
     PassportTable->setHorizontalHeaderLabels({"Свойство", "Значение"});
     QHeaderView* headerView = PassportTable->horizontalHeader();
     headerView->setSectionResizeMode(QHeaderView::Stretch);
@@ -70,15 +71,17 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     connect(addSensorButton, &QPushButton::clicked,     this, &SmartHomeConfig::addSensor);
     connect(deleteButton,    &QPushButton::clicked,     this, &SmartHomeConfig::deleteItem);
 
-    connect(ObjectsTree,      &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::activButton);
-    connect(ObjectsTree, &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::showPassport);
+    connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::activButton);
+    connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::showPassport);
 }
+//------------------------------------------------------------------------------------
+
+
+
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::addHouse()
 {
-//    tableWidget->setRowCount(0);
-
     QTreeWidgetItem* houseItem = new QTreeWidgetItem(ObjectsTree);
     houseItem->setData(0, Qt::DisplayRole, "Дом");
     houseItem->setData(0, Qt::UserRole, House);
@@ -93,8 +96,6 @@ void SmartHomeConfig::addHouse()
 
 void SmartHomeConfig::addRoom()
 {
-//    tableWidget->setRowCount(0);
-
     QTreeWidgetItem* houseItem = ObjectsTree->currentItem();
 
     if(houseItem == nullptr)
@@ -185,9 +186,10 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item, QTreeWidgetItem *previo
 
 void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 {
+    PassportTable->setRowCount(0);
+
     if(item == nullptr)
     {
-        PassportTable->setRowCount(0);
         return;
     }
 
@@ -197,61 +199,93 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
     {
         case House:
         {
-            PassportTable->setRowCount(0);
-
             QString str = item->data(0, Qt::DisplayRole).toString();
 
             QTableWidgetItem* name = new QTableWidgetItem();
             QTableWidgetItem* prop = new QTableWidgetItem();
 
-            name->setData(Qt::DisplayRole, str);
+            name->setData(Qt::DisplayRole, "Наименование");
             prop->setData(Qt::DisplayRole, val);
 
             PassportTable->insertRow(0);
             PassportTable->setItem(0, 0, name);
 //            tableWidget->setItem(0, 1, prop);
-            QLineEdit* lineEdit = new QLineEdit();
-            lineEdit->setFrame(false);
-            lineEdit->setText("ggggggggg");
-            PassportTable->setCellWidget(0, 1, lineEdit);
+            QLineEdit* lineEditPassport = new QLineEdit(this);
+            lineEditPassport->setFrame(false);
+            lineEditPassport->setText(str);
+            PassportTable->setCellWidget(0, 1, lineEditPassport);
+
+            connect(lineEditPassport, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillPassport);
 
             break;
         }
         case Room:
         {
-            PassportTable->setRowCount(0);
-
             QString str = item->data(0, Qt::DisplayRole).toString();
 
             QTableWidgetItem* name = new QTableWidgetItem();
-            QTableWidgetItem* prop = new QTableWidgetItem();
+//            QTableWidgetItem* prop = new QTableWidgetItem();
 
-            name->setData(Qt::DisplayRole, str);
-            prop->setData(Qt::DisplayRole, val);
+            name->setData(Qt::DisplayRole, "Наименование");
+//            prop->setData(Qt::DisplayRole, val);
 
             PassportTable->insertRow(0);
             PassportTable->setItem(0, 0, name);
-            PassportTable->setItem(0, 1, prop);
+//            PassportTable->setItem(0, 1, prop);
+
+            QLineEdit* lineEditPassport = new QLineEdit(this);
+            lineEditPassport->setFrame(false);
+            lineEditPassport->setText(str);
+            PassportTable->setCellWidget(0, 1, lineEditPassport);
+
+            connect(lineEditPassport, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillPassport);
 
             break;
         }
         case Sensor:
         {
-            PassportTable->setRowCount(0);
-
             QString str = item->data(0, Qt::DisplayRole).toString();
 
             QTableWidgetItem* name = new QTableWidgetItem();
             QTableWidgetItem* prop = new QTableWidgetItem();
 
-            name->setData(Qt::DisplayRole, str);
+            name->setData(Qt::DisplayRole, "Наименование");
             prop->setData(Qt::DisplayRole, val);
 
             PassportTable->insertRow(0);
             PassportTable->setItem(0, 0, name);
-            PassportTable->setItem(0, 1, prop);
+//            PassportTable->setItem(0, 1, prop);
+
+            QLineEdit* lineEditPassport = new QLineEdit(this);
+            lineEditPassport->setFrame(false);
+            lineEditPassport->setText(str);
+            PassportTable->setCellWidget(0, 1, lineEditPassport);
+
+            connect(lineEditPassport, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillPassport);
+
+            break;
         }
         default: break;
     }
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::fillPassport()
+{
+    QLineEdit* lEdit = qobject_cast<QLineEdit*>(sender());
+
+    if(lEdit == nullptr)
+    {
+        qWarning() << Q_FUNC_INFO << lEdit << "nullptr";
+        return;
+    }
+
+    QTreeWidgetItem* valItem = ObjectsTree->currentItem();
+    if(valItem == nullptr)
+    {
+        qWarning() << Q_FUNC_INFO << valItem << "nullptr";
+        return;
+    }
+    ObjectsTree->currentItem()->setData(0, Qt::DisplayRole, lEdit->text());
 }
 //------------------------------------------------------------------------------------

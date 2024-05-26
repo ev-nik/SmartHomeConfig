@@ -35,6 +35,9 @@ public slots:
     void deleteItem();
     void activButton(QTreeWidgetItem *item, QTreeWidgetItem *previous);
     void showPassport(QTreeWidgetItem* item);
+
+    void fillPassport();
+
 };
 //------------------------------------------------------------------------------------
 
