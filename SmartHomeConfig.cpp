@@ -210,12 +210,12 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->insertRow(0);
             PassportTable->setItem(0, 0, name);
 //            tableWidget->setItem(0, 1, prop);
-            QLineEdit* lineEditPassport = new QLineEdit(this);
-            lineEditPassport->setFrame(false);
-            lineEditPassport->setText(str);
-            PassportTable->setCellWidget(0, 1, lineEditPassport);
+            QLineEdit* nameEdit = new QLineEdit(this);
+            nameEdit->setFrame(false);
+            nameEdit->setText(str);
+            PassportTable->setCellWidget(0, 1, nameEdit);
 
-            connect(lineEditPassport, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillPassport);
+            connect(nameEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillPassport);
 
             break;
         }
@@ -233,12 +233,12 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->setItem(0, 0, name);
 //            PassportTable->setItem(0, 1, prop);
 
-            QLineEdit* lineEditPassport = new QLineEdit(this);
-            lineEditPassport->setFrame(false);
-            lineEditPassport->setText(str);
-            PassportTable->setCellWidget(0, 1, lineEditPassport);
+            QLineEdit* nameEdit = new QLineEdit(this);
+            nameEdit->setFrame(false);
+            nameEdit->setText(str);
+            PassportTable->setCellWidget(0, 1, nameEdit);
 
-            connect(lineEditPassport, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillPassport);
+            connect(nameEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillPassport);
 
             break;
         }
@@ -256,12 +256,12 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->setItem(0, 0, name);
 //            PassportTable->setItem(0, 1, prop);
 
-            QLineEdit* lineEditPassport = new QLineEdit(this);
-            lineEditPassport->setFrame(false);
-            lineEditPassport->setText(str);
-            PassportTable->setCellWidget(0, 1, lineEditPassport);
+            QLineEdit* nameEdit = new QLineEdit(this);
+            nameEdit->setFrame(false);
+            nameEdit->setText(str);
+            PassportTable->setCellWidget(0, 1, nameEdit);
 
-            connect(lineEditPassport, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillPassport);
+            connect(nameEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillPassport);
 
             break;
         }
@@ -272,20 +272,21 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 
 void SmartHomeConfig::fillPassport()
 {
-    QLineEdit* lEdit = qobject_cast<QLineEdit*>(sender());
+    QLineEdit* lEditPassport = qobject_cast<QLineEdit*>(sender());
 
-    if(lEdit == nullptr)
+    if(lEditPassport == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << lEdit << "nullptr";
+        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
         return;
     }
 
-    QTreeWidgetItem* valItem = ObjectsTree->currentItem();
-    if(valItem == nullptr)
+    QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
+
+    if(ObjectsTreeItem == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << valItem << "nullptr";
+        qWarning() << Q_FUNC_INFO << "Еhe element in the tree is not selected";
         return;
     }
-    ObjectsTree->currentItem()->setData(0, Qt::DisplayRole, lEdit->text());
+    ObjectsTree->currentItem()->setData(0, Qt::DisplayRole, lEditPassport->text());
 }
 //------------------------------------------------------------------------------------
