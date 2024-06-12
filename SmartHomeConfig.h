@@ -17,7 +17,7 @@ struct PropRoom
 
     PropRoom()
     {
-        name = "Зал";
+        name = "Комната";
     }
 };
 
@@ -43,9 +43,7 @@ struct PropSensor
         name = "Датчик";
     }
 };
-
 //------------------------------------------------------------------------------------
-
 
 class SmartHomeConfig : public QWidget
 {
@@ -65,9 +63,13 @@ private:
     QPushButton* deleteButton;
 
 public:
-    QVector<PropHouse*>  vectorHouse;
-    QVector<PropRoom*>   vectorRoom;
-    QVector<PropSensor*> vectorSensor;
+    QVector<PropHouse*> vectorHouse;
+    QVector<PropRoom*>  vectorRoom;
+    QVector<PropSensor*>vectorSensor;
+
+    PropHouse*  findObjectHouse (QString id);
+    PropRoom*   findObjectRoom  (QString id);
+    PropSensor* findObjectSensor(QString id);
 
 public slots:
     void addHouse();
@@ -86,9 +88,7 @@ public slots:
 
     void fillNameSensorPassport();
 
-
-
-    void fillAddressPassportq();
+//    void fillAddressPassportq();
 };
 //------------------------------------------------------------------------------------
 #endif // SMARTHOMECONFIG_H

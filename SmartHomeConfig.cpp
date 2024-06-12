@@ -181,6 +181,12 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->insertRow(0);
             PassportTable->setItem(0, 0, nameItem);
 
+            // 1 строка 0 ячейка         Адрес
+            QTableWidgetItem* addressItem = new QTableWidgetItem();
+            addressItem->setData(Qt::DisplayRole, "Адрес");
+            PassportTable->insertRow(1);
+            PassportTable->setItem(1, 0, addressItem);
+
             PropHouse* properties = nullptr;
             QString idHouseItem = item->data(0, Qt::ToolTipRole).toString();
 
@@ -202,12 +208,6 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
                 nameEdit->setText("");
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
-                // 1 строка 0 ячейка         Адрес
-                QTableWidgetItem* addressItem = new QTableWidgetItem();
-                addressItem->setData(Qt::DisplayRole, "Адрес");
-                PassportTable->insertRow(1);
-                PassportTable->setItem(1, 0, addressItem);
-
                 // 1 строка 1 ячейка         Ленина 101`
                 QLineEdit* addressEdit = new QLineEdit(this);
                 addressEdit->setFrame(false);
@@ -221,13 +221,6 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             nameEdit->setFrame(false);
             nameEdit->setText(properties->name);
             PassportTable->setCellWidget(0, 1, nameEdit);
-//------------------------------------------------------------------------
-
-            // 1 строка 0 ячейка         Адрес
-            QTableWidgetItem* addressItem = new QTableWidgetItem();
-            addressItem->setData(Qt::DisplayRole, "Адрес");
-            PassportTable->insertRow(1);
-            PassportTable->setItem(1, 0, addressItem);
 
             // 1 строка 1 ячейка         Ленина 101`
             QLineEdit* addressEdit = new QLineEdit(this);
@@ -246,6 +239,12 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             nameItem->setData(Qt::DisplayRole, "Наименование");
             PassportTable->insertRow(0);
             PassportTable->setItem(0, 0, nameItem);
+
+            // 1 строка 0 ячейка         Площадь
+            QTableWidgetItem* squareItem = new QTableWidgetItem();
+            squareItem->setData(Qt::DisplayRole, "Площадь");
+            PassportTable->insertRow(1);
+            PassportTable->setItem(1, 0, squareItem);
 
             PropRoom* properties = nullptr;
             QString idRoomItem = item->data(0, Qt::ToolTipRole).toString();
@@ -268,11 +267,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
                 nameEdit->setText("");
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
-                // 1 строка 0 ячейка         Площадь
-                QTableWidgetItem* squareItem = new QTableWidgetItem();
-                squareItem->setData(Qt::DisplayRole, "Площадь");
-                PassportTable->insertRow(1);
-                PassportTable->setItem(1, 0, squareItem);
+
 
                 // 1 строка 1 ячейка         55м2`
                 QLineEdit* squareEdit = new QLineEdit(this);
@@ -288,19 +283,13 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             nameEdit->setText(properties->name);
             PassportTable->setCellWidget(0, 1, nameEdit);
 
-            // 1 строка 0 ячейка         Площадь
-            QTableWidgetItem* squareItem = new QTableWidgetItem();
-            squareItem->setData(Qt::DisplayRole, "Площадь");
-            PassportTable->insertRow(1);
-            PassportTable->setItem(1, 0, squareItem);
-
             // 1 строка 1 ячейка         55м2`
             QLineEdit* squareEdit = new QLineEdit(this);
             squareEdit->setFrame(false);
             squareEdit->setText(properties->square);
             PassportTable->setCellWidget(1, 1, squareEdit);
 
-            connect(nameEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillNameRoomPassport);
+            connect(nameEdit,   &QLineEdit::editingFinished, this, &SmartHomeConfig::fillNameRoomPassport);
             connect(squareEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillSquareRoomPassport);
             break;
         }
@@ -348,36 +337,6 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::fillNameSensorPassport()
-{
-    QLineEdit* nameEditPassport = qobject_cast<QLineEdit*>(sender());
-    if(nameEditPassport == nullptr)
-    {
-        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
-        return;
-    }
-
-    QTreeWidgetItem* ObjectTreeItem = ObjectsTree->currentItem();
-    if(ObjectTreeItem == nullptr)
-    {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
-        return;
-    }
-
-    QString idSensorItem = ObjectTreeItem->data(0, Qt::ToolTipRole).toString();
-
-    for(int i = 0; i < vectorSensor.count(); i++)
-    {
-        if(vectorSensor[i]->id == idSensorItem)
-        {
-            vectorSensor[i]->name = nameEditPassport->text();
-            ObjectTreeItem->setData(0, Qt::DisplayRole, vectorSensor[i]->name);
-            break;
-        }
-    }
-}
-//------------------------------------------------------------------------------------
-
 void SmartHomeConfig::fillNameHousePassport()
 {
     QLineEdit* nameEditPassport = qobject_cast<QLineEdit*>(sender());
@@ -396,15 +355,16 @@ void SmartHomeConfig::fillNameHousePassport()
 
     QString idHouseItem = ObjectsTreeItem->data(0, Qt::ToolTipRole).toString();
 
-    for(int i = 0; i < vectorHouse.count(); i++)
+    PropHouse* house = findObjectHouse(idHouseItem);
+
+    if(house == nullptr)
     {
-        if(vectorHouse[i]->id == idHouseItem)
-        {
-            vectorHouse[i]->name = nameEditPassport->text();
-            ObjectsTreeItem->setData(0, Qt::DisplayRole, vectorHouse[i]->name);
-            break;
-        }
+        qWarning() << Q_FUNC_INFO << idHouseItem << "The element in the vectorHouse not found";
+        return;
     }
+
+    house->name = nameEditPassport->text();
+    ObjectsTreeItem->setData(0, Qt::DisplayRole, house->name);
 }
 //------------------------------------------------------------------------------------
 
@@ -426,16 +386,18 @@ void SmartHomeConfig::fillAddressHousePassport()
         return;
     }
 
-    QString idRoomHouse = ObjectsTreeItem->data(0, Qt::ToolTipRole).toString();
+    QString idHouseItem = ObjectsTreeItem->data(0, Qt::ToolTipRole).toString();
 
-    for(int i = 0; i < vectorHouse.count(); i++)
+    PropHouse* house = findObjectHouse(idHouseItem);
+
+    if(house == nullptr)
     {
-        if(vectorHouse[i]->id == idRoomHouse)
-        {
-            vectorHouse[i]->address = addressEditPassport->text();
-            break;
-        }
+        qWarning() << Q_FUNC_INFO << idHouseItem << "The elevent in the vectorHouse not found";
+        return;
     }
+
+    house->address = addressEditPassport->text();
+    ObjectsTreeItem->setData(1, Qt::DisplayRole, house->address);
 }
 //------------------------------------------------------------------------------------
 
@@ -448,24 +410,25 @@ void SmartHomeConfig::fillNameRoomPassport()
         return;
     }
 
-    QTreeWidgetItem* ObjectsTreeParentItem = ObjectsTree->currentItem();
-    if(ObjectsTreeParentItem == nullptr)
+    QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
+    if(ObjectsTreeItem == nullptr)
     {
         qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
         return;
     }
 
-    QString idRoomItem = ObjectsTreeParentItem->data(0, Qt::ToolTipRole).toString();
+    QString idRoomItem = ObjectsTreeItem->data(0, Qt::ToolTipRole).toString();
 
-    for(int i = 0; i < vectorRoom.count(); i++)
+    PropRoom* room = findObjectRoom(idRoomItem);
+
+    if(room == nullptr)
     {
-        if(vectorRoom[i]->id == idRoomItem)
-        {
-            vectorRoom[i]->name = nameEditPassport->text();
-            ObjectsTreeParentItem->setData(0, Qt::DisplayRole, vectorRoom[i]->name);
-            break;
-        }
+        qWarning() << Q_FUNC_INFO << idRoomItem << "The element in thr vectorRoom not found";
+        return;
     }
+
+    room->name = nameEditPassport->text();
+    ObjectsTreeItem->setData(0, Qt::DisplayRole, room->name);
 }
 //------------------------------------------------------------------------------------
 
@@ -478,24 +441,110 @@ void SmartHomeConfig::fillSquareRoomPassport()
         return;
     }
 
-    QTreeWidgetItem* ObjectTreeParentItem = ObjectsTree->currentItem();
-    if(ObjectTreeParentItem == nullptr)
+    QTreeWidgetItem* ObjectTreeItem = ObjectsTree->currentItem();
+    if(ObjectTreeItem == nullptr)
     {
         qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
         return;
     }
 
-    QString idRoomItem = ObjectTreeParentItem->data(0, Qt::ToolTipRole).toString();
+    QString idRoomItem = ObjectTreeItem->data(0, Qt::ToolTipRole).toString();
 
-    for(int i = 0; i < vectorRoom.count(); i++)
+    PropRoom* room = findObjectRoom(idRoomItem);
+
+    if(room == nullptr)
     {
-        if(vectorRoom[i]->id == idRoomItem)
+        qWarning() << Q_FUNC_INFO << idRoomItem << "The element in the vectorRoom not found";
+        return;
+    }
+
+    room->square = squareEditPassport->text();
+    ObjectTreeItem->setData(1, Qt::DisplayRole, room->square);
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::fillNameSensorPassport()
+{
+    QLineEdit* nameEditPassport = qobject_cast<QLineEdit*>(sender());
+    if(nameEditPassport == nullptr)
+    {
+        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
+        return;
+    }
+
+    QTreeWidgetItem* ObjectTreeItem = ObjectsTree->currentItem();
+    if(ObjectTreeItem == nullptr)
+    {
+        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        return;
+    }
+
+    QString idSensorItem = ObjectTreeItem->data(0, Qt::ToolTipRole).toString();
+
+
+    PropSensor* sensor = findObjectSensor(idSensorItem);
+
+    if(sensor == nullptr)
+    {
+        qWarning() << Q_FUNC_INFO << idSensorItem << "The element in the vectorSensor not found";
+        return;
+    }
+
+    sensor->name = nameEditPassport->text();
+    ObjectTreeItem->setData(0, Qt::DisplayRole, sensor->name);
+}
+//------------------------------------------------------------------------------------
+
+PropHouse* SmartHomeConfig::findObjectHouse(QString id)
+{
+    PropHouse* house = nullptr;
+
+    for(int i = 0; i < vectorHouse.count(); i++)
+    {
+        if(vectorHouse[i]->id == id)
         {
-            vectorRoom[i]->square = squareEditPassport->text();
+            house = vectorHouse[i];
             break;
         }
     }
+
+    return house;
 }
+//------------------------------------------------------------------------------------
+
+PropRoom* SmartHomeConfig::findObjectRoom(QString id)
+{
+    PropRoom* room = nullptr;
+
+    for(int i = 0; i < vectorRoom.count(); i++)
+    {
+        if(vectorRoom[i]->id == id)
+        {
+            room = vectorRoom[i];
+            break;
+        }
+    }
+
+    return room;
+}
+//------------------------------------------------------------------------------------
+
+PropSensor* SmartHomeConfig::findObjectSensor(QString id)
+{
+    PropSensor* sensor = nullptr;
+
+    for(int i = 0; i < vectorSensor.count(); i++)
+    {
+        if(vectorSensor[i]->id == id)
+        {
+            sensor = vectorSensor[i];
+            break;
+        }
+    }
+
+    return sensor;
+}
+
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::deleteItem()
@@ -514,9 +563,9 @@ void SmartHomeConfig::deleteItem()
 
 void SmartHomeConfig::activButton(QTreeWidgetItem *item, QTreeWidgetItem *previous)
 {
-    addRoomButton   ->setEnabled(false);
-    addSensorButton ->setEnabled(false);
-    deleteButton    ->setEnabled(false);
+    addRoomButton  ->setEnabled(false);
+    addSensorButton->setEnabled(false);
+    deleteButton   ->setEnabled(false);
 
     if(item == nullptr)
     {
@@ -567,5 +616,5 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item, QTreeWidgetItem *previo
 
 //    // у item родителя получить номер строки дочернего элемента
 //    int rowRoom = _houseItem1->indexOfChild(roomeItem);
-}
+//}
 //------------------------------------------------------------------------------------
