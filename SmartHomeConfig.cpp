@@ -187,18 +187,9 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->insertRow(1);
             PassportTable->setItem(1, 0, addressItem);
 
-            PropHouse* properties = nullptr;
             QString idHouseItem = item->data(0, Qt::ToolTipRole).toString();
 
-            for(int i = 0; i < vectorHouse.count(); i++)
-            {
-                PropHouse* val = vectorHouse[i];
-                if(val->id == idHouseItem)
-                {
-                    properties = vectorHouse[i];
-                    break;
-                }
-            }
+            PropHouse* properties = findObjectHouse(idHouseItem);
 
             if(properties == nullptr)
             {
@@ -246,18 +237,9 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->insertRow(1);
             PassportTable->setItem(1, 0, squareItem);
 
-            PropRoom* properties = nullptr;
             QString idRoomItem = item->data(0, Qt::ToolTipRole).toString();
 
-            for(int i = 0; i < vectorRoom.count(); i++)
-            {
-                PropRoom* val = vectorRoom[i];
-                if(val->id == idRoomItem)
-                {
-                    properties = vectorRoom[i];
-                    break;
-                }
-            }
+            PropRoom* properties = findObjectRoom(idRoomItem);
 
             if(properties == nullptr)
             {
@@ -266,8 +248,6 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
                 nameEdit->setFrame(false);
                 nameEdit->setText("");
                 PassportTable->setCellWidget(0, 1, nameEdit);
-
-
 
                 // 1 строка 1 ячейка         55м2`
                 QLineEdit* squareEdit = new QLineEdit(this);
@@ -301,18 +281,9 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->insertRow(0);
             PassportTable->setItem(0, 0, name);
 
-            PropSensor*properties = nullptr;
             QString idSensorItem = item->data(0, Qt::ToolTipRole).toString();
 
-            for(int i = 0; i < vectorSensor.count(); i++)
-            {
-                PropSensor* val = vectorSensor[i];
-                if(val->id == idSensorItem)
-                {
-                    properties = vectorSensor[i];
-                    break;
-                }
-            }
+            PropSensor*properties = findObjectSensor(idSensorItem);
 
             if(properties == nullptr)
             {
