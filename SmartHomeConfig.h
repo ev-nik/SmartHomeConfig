@@ -7,12 +7,14 @@
 #include <QPushButton>
 #include <QTableWidget>
 //#include <QVector>
+#include <QComboBox>
 //------------------------------------------------------------------------------------
 
 struct PropRoom
 {
     QString name;
     QString square;
+    QString countWindow;
     QString id;
 
     PropRoom()
@@ -37,10 +39,12 @@ struct PropSensor
 {
     QString name;
     QString id;
+    QString valviewSensor;
 
     PropSensor()
     {
         name = "Датчик";
+        valviewSensor = "5";
     }
 };
 //------------------------------------------------------------------------------------
@@ -85,8 +89,10 @@ public slots:
 
     void fillNameRoomPassport();
     void fillSquareRoomPassport();
+    void fillWindowRoomPassport();
 
     void fillNameSensorPassport();
+    void fillValViewSensorPassport();
 
 //    void fillAddressPassportq();
 };
