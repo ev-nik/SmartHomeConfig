@@ -6,23 +6,8 @@
 #include <QTreeWidget>
 #include <QPushButton>
 #include <QTableWidget>
-//#include <QVector>
 #include <QComboBox>
 //------------------------------------------------------------------------------------
-
-struct PropRoom
-{
-    QString name;
-    QString square;
-    QString countWindow;
-    QString id;
-
-    PropRoom()
-    {
-        name = "Комната";
-    }
-};
-
 struct PropHouse
 {
     QString name;
@@ -35,16 +20,29 @@ struct PropHouse
     }
 };
 
+struct PropRoom
+{
+    QString name;
+    QString square;
+    int countWindow;
+    QString id;
+
+    PropRoom()
+    {
+        name = "Комната";
+    }
+};
+
 struct PropSensor
 {
     QString name;
+    QString viewSensor;
     QString id;
-    QString valviewSensor;
 
     PropSensor()
     {
         name = "Датчик";
-        valviewSensor = "5";
+        viewSensor = "5";
     }
 };
 //------------------------------------------------------------------------------------
@@ -75,6 +73,9 @@ public:
     PropRoom*   findObjectRoom  (QString id);
     PropSensor* findObjectSensor(QString id);
 
+    void deleteSensor(QTreeWidgetItem* item);
+    void deleteRoom(QTreeWidgetItem* item);
+
 public slots:
     void addHouse();
     void addRoom();
@@ -89,10 +90,10 @@ public slots:
 
     void fillNameRoomPassport();
     void fillSquareRoomPassport();
-    void fillWindowRoomPassport();
+    void fillWindowRoomPassport(QString str);
 
     void fillNameSensorPassport();
-    void fillValViewSensorPassport();
+    void fillViewSensorPassport();
 
 //    void fillAddressPassportq();
 };

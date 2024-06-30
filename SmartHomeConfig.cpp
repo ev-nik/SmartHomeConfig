@@ -9,6 +9,7 @@
 #include <QFrame>
 #include <QUuid>
 #include <QComboBox>
+#include <QSpinBox>
 //------------------------------------------------------------------------------------
 
 enum HouseObject
@@ -180,7 +181,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
     {
         case House:
         {
-// 0 строка 0 ячейка          Наименование
+            // 0 строка 0 ячейка          Наименование
             QTableWidgetItem* nameItem = new QTableWidgetItem();
             nameItem->setData(Qt::DisplayRole, "Наименование");
             PassportTable->insertRow(0);
@@ -196,32 +197,30 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 
             PropHouse* properties = findObjectHouse(idHouseItem);
 
+            QLineEdit* nameEdit = new QLineEdit(this);
+            nameEdit->setFrame(false);
+            nameEdit->setText("");
+
+            QLineEdit* addressEdit = new QLineEdit(this);
+            addressEdit->setFrame(false);
+            addressEdit->setText("");
+
             if(properties == nullptr)
             {
                 qWarning() << Q_FUNC_INFO << "The element in the vectorHouse not found";
                 // 0 строка 1 ячейка          Дом
-                QLineEdit* nameEdit = new QLineEdit(this);
-                nameEdit->setFrame(false);
-                nameEdit->setText("");
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
                 // 1 строка 1 ячейка         Ленина 101`
-                QLineEdit* addressEdit = new QLineEdit(this);
-                addressEdit->setFrame(false);
-                addressEdit->setText("");
                 PassportTable->setCellWidget(1, 1, addressEdit);
                 break;
             }
 
             // 0 строка 1 ячейка          Дом
-            QLineEdit* nameEdit = new QLineEdit(this);
-            nameEdit->setFrame(false);
             nameEdit->setText(properties->name);
             PassportTable->setCellWidget(0, 1, nameEdit);
 
             // 1 строка 1 ячейка         Ленина 101`
-            QLineEdit* addressEdit = new QLineEdit(this);
-            addressEdit->setFrame(false);
             addressEdit->setText(properties->address);
             PassportTable->setCellWidget(1, 1, addressEdit);
 
@@ -253,49 +252,47 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 
             PropRoom* properties = findObjectRoom(idRoomItem);
 
+            QLineEdit* nameEdit = new QLineEdit(this);
+            nameEdit->setFrame(false);
+            nameEdit->setText("");
+
+            QLineEdit* squareEdit = new QLineEdit(this);
+            squareEdit->setFrame(false);
+            squareEdit->setText("");
+
+            QSpinBox* countWindowBox = new QSpinBox(this);
+            countWindowBox->setFrame(false);
+            countWindowBox->setValue(0);
+
             if(properties == nullptr)
             {
                 // 0 строка 1 ячейка          Зал
-                QLineEdit* nameEdit = new QLineEdit(this);
-                nameEdit->setFrame(false);
-                nameEdit->setText("");
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
                 // 1 строка 1 ячейка         55м2`
-                QLineEdit* squareEdit = new QLineEdit(this);
-                squareEdit->setFrame(false);
-                squareEdit->setText("");
                 PassportTable->setCellWidget(1, 1, squareEdit);
 
                 // 2 строка 1 ячейка         кол-во окон`
-                QLineEdit* countWindowEdit = new QLineEdit(this);
-                countWindowEdit->setFrame(false);
-                countWindowEdit->setText("");
-                PassportTable->setCellWidget(2, 1, countWindowEdit);
+                PassportTable->setCellWidget(2, 1, countWindowBox);
                 break;
             }
 
             // 0 строка 1 ячейка          Зал
-            QLineEdit* nameEdit = new QLineEdit(this);
-            nameEdit->setFrame(false);
             nameEdit->setText(properties->name);
             PassportTable->setCellWidget(0, 1, nameEdit);
 
             // 1 строка 1 ячейка         55м2`
-            QLineEdit* squareEdit = new QLineEdit(this);
-            squareEdit->setFrame(false);
             squareEdit->setText(properties->square);
             PassportTable->setCellWidget(1, 1, squareEdit);
 
             // 2 строка 1 ячейка         кол-во окон
-            QLineEdit* countWindowEdit = new QLineEdit(this);
-            countWindowEdit->setFrame(false);
-            countWindowEdit->setText(properties->countWindow);
-            PassportTable->setCellWidget(2, 1, countWindowEdit);
+            countWindowBox->setValue(properties->countWindow);
+            PassportTable->setCellWidget(2, 1, countWindowBox);
 
             connect(nameEdit,   &QLineEdit::editingFinished, this, &SmartHomeConfig::fillNameRoomPassport);
             connect(squareEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillSquareRoomPassport);
-            connect(countWindowEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillWindowRoomPassport);
+            connect(countWindowBox, &QSpinBox::textChanged, this, &SmartHomeConfig::fillWindowRoomPassport);
+//            connect( countWindowBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &SmartHomeConfig::fillWindowRoomPassport );
             break;
         }
         case Sensor:
@@ -307,7 +304,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->setItem(0, 0, name);
 
             // 1 строка 0 ячейка          Наименование
-            QComboBox* cBoxSensor = new QComboBox();
+            QComboBox* cBoxSensor = new QComboBox(this);
             cBoxSensor->addItems({"Температура", "Влажность", "Дым"});
             PassportTable->insertRow(1);
             PassportTable->setCellWidget(1, 0, cBoxSensor);
@@ -316,102 +313,39 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 
             PropSensor*properties = findObjectSensor(idSensorItem);
 
+            QLineEdit* nameEdit = new QLineEdit(this);
+            nameEdit->setFrame(false);
+            nameEdit->setText("");
+
+            QLineEdit* valSensorEdit = new QLineEdit(this);
+            valSensorEdit->setFrame(false);
+            valSensorEdit->setText("1");
+
             if(properties == nullptr)
             {
                 // 0 строка 1 ячейка          Датчик
-                QLineEdit* nameEdit = new QLineEdit(this);
-                nameEdit->setFrame(false);
-                nameEdit->setText("");
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
                 // 1 строка 1 ячейка          Значение датчика
-                QLineEdit* cBoxEdit = new QLineEdit(this);
-                cBoxEdit->setFrame(false);
-                cBoxEdit->setText("1");
-                PassportTable->setCellWidget(1, 1, cBoxEdit);
+                PassportTable->setCellWidget(1, 1, valSensorEdit);
                 break;
             }
 
             // 0 строка 1 ячейка          Датчик
-            QLineEdit* nameEdit = new QLineEdit(this);
-            nameEdit->setFrame(false);
             nameEdit->setText(properties->name);
             PassportTable->setCellWidget(0, 1, nameEdit);
 
             // 1 строка 1 ячейка          Значение датчика
-            QLineEdit* cBoxEdit = new QLineEdit(this);
-            cBoxEdit->setFrame(false);
-            cBoxEdit->setText(properties->valviewSensor);
-            PassportTable->setCellWidget(1, 1, cBoxEdit);
+            valSensorEdit->setText(properties->viewSensor);
+            PassportTable->setCellWidget(1, 1, valSensorEdit);
 
             connect(nameEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillNameSensorPassport);
-            connect(cBoxEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillValViewSensorPassport);
+            connect(valSensorEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillViewSensorPassport);
             break;
         }
         default: break;
     }
 }
-//------------------------------------------------------------------------------------
-
-void SmartHomeConfig::fillWindowRoomPassport()
-{
-    QLineEdit* nameEditPassport = qobject_cast<QLineEdit*>(sender());
-    if(nameEditPassport == nullptr)
-    {
-        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
-        return;
-    }
-
-    QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
-    if(ObjectsTreeItem == nullptr)
-    {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
-        return;
-    }
-
-    QString idRoomItem = ObjectsTreeItem->data(0, Qt::ToolTipRole).toString();
-
-    PropRoom* room = findObjectRoom(idRoomItem);
-
-    if(room == nullptr)
-    {
-        qWarning() << Q_FUNC_INFO << idRoomItem << "The element in thr vectorRoom not found";
-        return;
-    }
-
-    room->countWindow = nameEditPassport->text();
-}
-//------------------------------------------------------------------------------------
-
-void SmartHomeConfig::fillValViewSensorPassport()
-{
-    QLineEdit* cBoxEditPassport = qobject_cast<QLineEdit*>(sender());
-    if(cBoxEditPassport == nullptr)
-    {
-        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
-        return;
-    }
-
-    QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
-    if(ObjectsTreeItem == nullptr)
-    {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
-        return;
-    }
-
-    QString idSensorItem = ObjectsTreeItem->data(0, Qt::ToolTipRole).toString();
-
-    PropSensor* sensor = findObjectSensor(idSensorItem);
-
-    if(sensor == nullptr)
-    {
-        qWarning() << Q_FUNC_INFO << idSensorItem << "The element in the vectorHouse not found";
-        return;
-    }
-
-    sensor->valviewSensor = cBoxEditPassport->text();
-}
-
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::fillNameHousePassport()
@@ -540,6 +474,30 @@ void SmartHomeConfig::fillSquareRoomPassport()
 }
 //------------------------------------------------------------------------------------
 
+void SmartHomeConfig::fillWindowRoomPassport(QString str)
+{
+    QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
+    if(ObjectsTreeItem == nullptr)
+    {
+        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        return;
+    }
+
+    QString idRoomItem = ObjectsTreeItem->data(0, Qt::ToolTipRole).toString();
+
+    PropRoom* room = findObjectRoom(idRoomItem);
+
+    if(room == nullptr)
+    {
+        qWarning() << Q_FUNC_INFO << idRoomItem << "The element in thr vectorRoom not found";
+        return;
+    }
+
+    room->countWindow = str.toInt();
+    ObjectsTreeItem->setData(2, Qt::DisplayRole, room->countWindow);
+}
+//------------------------------------------------------------------------------------
+
 void SmartHomeConfig::fillNameSensorPassport()
 {
     QLineEdit* nameEditPassport = qobject_cast<QLineEdit*>(sender());
@@ -558,7 +516,6 @@ void SmartHomeConfig::fillNameSensorPassport()
 
     QString idSensorItem = ObjectTreeItem->data(0, Qt::ToolTipRole).toString();
 
-
     PropSensor* sensor = findObjectSensor(idSensorItem);
 
     if(sensor == nullptr)
@@ -569,6 +526,36 @@ void SmartHomeConfig::fillNameSensorPassport()
 
     sensor->name = nameEditPassport->text();
     ObjectTreeItem->setData(0, Qt::DisplayRole, sensor->name);
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::fillViewSensorPassport()
+{
+    QLineEdit* cBoxEditPassport = qobject_cast<QLineEdit*>(sender());
+    if(cBoxEditPassport == nullptr)
+    {
+        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
+        return;
+    }
+
+    QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
+    if(ObjectsTreeItem == nullptr)
+    {
+        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        return;
+    }
+
+    QString idSensorItem = ObjectsTreeItem->data(0, Qt::ToolTipRole).toString();
+
+    PropSensor* sensor = findObjectSensor(idSensorItem);
+
+    if(sensor == nullptr)
+    {
+        qWarning() << Q_FUNC_INFO << idSensorItem << "The element in the vectorHouse not found";
+        return;
+    }
+
+    sensor->viewSensor = cBoxEditPassport->text();
 }
 //------------------------------------------------------------------------------------
 
@@ -621,7 +608,6 @@ PropSensor* SmartHomeConfig::findObjectSensor(QString id)
 
     return sensor;
 }
-
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::deleteItem()
@@ -633,6 +619,33 @@ void SmartHomeConfig::deleteItem()
         qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
         return;
     }
+
+    int itemType = item->data(0, Qt::UserRole).toInt();
+
+    switch(itemType)
+    {
+        case House:
+        {
+
+            break;
+        }
+        case Room:
+        {
+            deleteRoom(item);
+            break;
+        }
+        case Sensor:
+        {
+            deleteSensor(item);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+
 
     delete item;
 }
@@ -670,3 +683,45 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item, QTreeWidgetItem *previo
     }
 }
 //------------------------------------------------------------------------------------
+
+void SmartHomeConfig::deleteRoom(QTreeWidgetItem* item)
+{
+    for(int i = 0; i < item->childCount(); i++)
+    {
+        QTreeWidgetItem* itemSensor = nullptr;
+        itemSensor = item->child(i);
+        deleteSensor(itemSensor);
+    }
+
+    QString idRoom = item->data(0, Qt::ToolTipRole).toString();
+
+    PropRoom* room = findObjectRoom(idRoom);
+
+    if(room != nullptr)
+    {
+        vectorRoom.removeAll(room);
+        delete room;
+    }
+    else
+    {
+        qWarning() << Q_FUNC_INFO << idRoom << "The element in the vectorRoom not found";
+    }
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::deleteSensor(QTreeWidgetItem* item)
+{
+    QString idSensor = item->data(0, Qt::ToolTipRole).toString();
+
+    PropSensor* sensor = findObjectSensor(idSensor);
+
+    if(sensor != nullptr)
+    {
+        vectorSensor.removeAll(sensor);
+        delete sensor;
+    }
+    else
+    {
+        qWarning() << Q_FUNC_INFO << idSensor << "The element in the vectorHouse not found";
+    }
+}
