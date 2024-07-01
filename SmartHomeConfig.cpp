@@ -626,7 +626,7 @@ void SmartHomeConfig::deleteItem()
     {
         case House:
         {
-
+            deleteHouse(item);
             break;
         }
         case Room:
@@ -644,8 +644,6 @@ void SmartHomeConfig::deleteItem()
             break;
         }
     }
-
-
 
     delete item;
 }
@@ -681,6 +679,30 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item, QTreeWidgetItem *previo
         }
         default: break;
     }
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::deleteHouse(QTreeWidgetItem* item)
+{
+    for(int i = 0; i < item->childCount(); i++)
+    {
+        deleteRoom(item);
+    }
+        QString idHouse = item->data(0, Qt::ToolTipRole).toString();
+
+        PropHouse* house = nullptr;
+        house = findObjectHouse(idHouse);
+
+        if(house != nullptr)
+        {
+            vectorHouse.removeAll(house);
+            delete house;
+        }
+        else
+        {
+            qWarning() << Q_FUNC_INFO << house << "The element is not found";
+        }
+
 }
 //------------------------------------------------------------------------------------
 

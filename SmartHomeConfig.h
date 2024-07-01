@@ -73,8 +73,10 @@ public:
     PropRoom*   findObjectRoom  (QString id);
     PropSensor* findObjectSensor(QString id);
 
-    void deleteSensor(QTreeWidgetItem* item);
+    void deleteHouse(QTreeWidgetItem* item);
     void deleteRoom(QTreeWidgetItem* item);
+    void deleteSensor(QTreeWidgetItem* item);
+
 
 public slots:
     void addHouse();
