@@ -22,7 +22,7 @@ enum HouseObject
 
 SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 {
-    setGeometry(40, 40, 900, 500);
+    setGeometry(1270, 450, 900, 500);
 
     ObjectsTree = new QTreeWidget(this);
     ObjectsTree->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -686,22 +686,23 @@ void SmartHomeConfig::deleteHouse(QTreeWidgetItem* item)
 {
     for(int i = 0; i < item->childCount(); i++)
     {
-        deleteRoom(item);
+        deleteRoom(item->child(i));
     }
-        QString idHouse = item->data(0, Qt::ToolTipRole).toString();
 
-        PropHouse* house = nullptr;
-        house = findObjectHouse(idHouse);
+    QString idHouse = item->data(0, Qt::ToolTipRole).toString();
 
-        if(house != nullptr)
-        {
-            vectorHouse.removeAll(house);
-            delete house;
-        }
-        else
-        {
-            qWarning() << Q_FUNC_INFO << house << "The element is not found";
-        }
+    PropHouse* house = nullptr;
+    house = findObjectHouse(idHouse);
+
+    if(house != nullptr)
+    {
+        vectorHouse.removeAll(house);
+        delete house;
+    }
+    else
+    {
+        qWarning() << Q_FUNC_INFO << house << "The element is not found";
+    }
 
 }
 //------------------------------------------------------------------------------------
