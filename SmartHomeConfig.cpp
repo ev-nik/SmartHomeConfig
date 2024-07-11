@@ -52,7 +52,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     deleteButton->setText("Удалить");
 //    deleteButton->setEnabled(false);
 
-    activButton(nullptr, nullptr);
+    activButton(nullptr/*, nullptr*/);
 
 //    cBox = new QComboBox(this);
 //    cBox->addItems({"aaa", "bbb"});
@@ -649,7 +649,7 @@ void SmartHomeConfig::deleteItem()
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::activButton(QTreeWidgetItem *item, QTreeWidgetItem *previous)
+void SmartHomeConfig::activButton(QTreeWidgetItem *item)
 {
     addRoomButton  ->setEnabled(false);
     addSensorButton->setEnabled(false);
@@ -657,7 +657,6 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item, QTreeWidgetItem *previo
 
     if(item == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";//??????????????????????????
         return;
     }
 

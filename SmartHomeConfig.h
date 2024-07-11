@@ -84,7 +84,7 @@ public slots:
     void addSensor();
 
     void deleteItem();
-    void activButton(QTreeWidgetItem*  item, QTreeWidgetItem *previous);
+    void activButton(QTreeWidgetItem*  items);
     void showPassport(QTreeWidgetItem* item);
 
     void fillNameHousePassport();
