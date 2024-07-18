@@ -23,12 +23,13 @@ struct PropHouse
 struct PropRoom
 {
     QString name;
-    QString square;
+    double square;
     int countWindow;
     QString id;
 
     PropRoom()
     {
+        square = 0;
         name = "Комната";
     }
 };
@@ -42,7 +43,6 @@ struct PropSensor
     PropSensor()
     {
         name = "Датчик";
-        viewSensor = "5";
     }
 };
 //------------------------------------------------------------------------------------
@@ -77,7 +77,6 @@ public:
     void deleteRoom(QTreeWidgetItem* item);
     void deleteSensor(QTreeWidgetItem* item);
 
-
 public slots:
     void addHouse();
     void addRoom();
@@ -92,12 +91,10 @@ public slots:
 
     void fillNameRoomPassport();
     void fillSquareRoomPassport();
-    void fillWindowRoomPassport(QString str);
+    void fillWindowRoomPassport(int count);
 
     void fillNameSensorPassport();
     void fillViewSensorPassport();
-
-//    void fillAddressPassportq();
 };
 //------------------------------------------------------------------------------------
 #endif // SMARTHOMECONFIG_H

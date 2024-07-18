@@ -10,6 +10,8 @@
 #include <QUuid>
 #include <QComboBox>
 #include <QSpinBox>
+#include <QApplication>
+#include <QDesktopWidget>
 //------------------------------------------------------------------------------------
 
 enum HouseObject
@@ -22,7 +24,17 @@ enum HouseObject
 
 SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 {
-    setGeometry(1270, 450, 900, 500);
+    qApp->installEventFilter(this);
+    { // Отображение окна по центру экрана
+        int width = 900;
+        int height = 500;
+
+        QRect screenRect = QApplication::desktop()->rect();
+        int x = (screenRect.width() / 2) - (width / 2);
+        int y = (screenRect.height() / 2) - (height / 2);
+
+        setGeometry(x, y, width, height);
+    }
 
     ObjectsTree = new QTreeWidget(this);
     ObjectsTree->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -42,27 +54,20 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
     addRoomButton = new QPushButton(this);
     addRoomButton->setText("Добавить комнату");
-//    addRoomButton->setEnabled(false);
 
     addSensorButton = new QPushButton(this);
     addSensorButton->setText("Добавить датчик");
-//    addSensorButton->setEnabled(false);
 
     deleteButton = new QPushButton(this);
     deleteButton->setText("Удалить");
-//    deleteButton->setEnabled(false);
 
-    activButton(nullptr/*, nullptr*/);
-
-//    cBox = new QComboBox(this);
-//    cBox->addItems({"aaa", "bbb"});
+    activButton(nullptr);
 
     QHBoxLayout* hLayout1 = new QHBoxLayout();
     hLayout1->addWidget(addHouseButton);
     hLayout1->addWidget(addRoomButton);
     hLayout1->addWidget(addSensorButton);
     hLayout1->addWidget(deleteButton);
-//    hLayout1->addWidget(cBox);
     hLayout1->addStretch();
 
     QHBoxLayout* hLayout2 = new QHBoxLayout();
@@ -171,7 +176,6 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 
     if(item == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
         return;
     }
 
@@ -256,9 +260,13 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             nameEdit->setFrame(false);
             nameEdit->setText("");
 
-            QLineEdit* squareEdit = new QLineEdit(this);
-            squareEdit->setFrame(false);
-            squareEdit->setText("");
+//            QLineEdit* squareEdit = new QLineEdit(this);
+//            squareEdit->setFrame(false);
+//            squareEdit->setText("");
+
+             QDoubleSpinBox* squareSpinBox = new QDoubleSpinBox(this);
+             squareSpinBox->setFrame(false);
+             squareSpinBox->setValue(0);
 
             QSpinBox* countWindowBox = new QSpinBox(this);
             countWindowBox->setFrame(false);
@@ -270,7 +278,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
                 // 1 строка 1 ячейка         55м2`
-                PassportTable->setCellWidget(1, 1, squareEdit);
+                PassportTable->setCellWidget(1, 1, /*squareEdit*/squareSpinBox);
 
                 // 2 строка 1 ячейка         кол-во окон`
                 PassportTable->setCellWidget(2, 1, countWindowBox);
@@ -282,17 +290,18 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->setCellWidget(0, 1, nameEdit);
 
             // 1 строка 1 ячейка         55м2`
-            squareEdit->setText(properties->square);
-            PassportTable->setCellWidget(1, 1, squareEdit);
+            /*squareEdit*/squareSpinBox->setValue(properties->square);
+            PassportTable->setCellWidget(1, 1,  /*squareEdit*/squareSpinBox);
 
             // 2 строка 1 ячейка         кол-во окон
             countWindowBox->setValue(properties->countWindow);
             PassportTable->setCellWidget(2, 1, countWindowBox);
 
             connect(nameEdit,   &QLineEdit::editingFinished, this, &SmartHomeConfig::fillNameRoomPassport);
-            connect(squareEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillSquareRoomPassport);
-            connect(countWindowBox, &QSpinBox::textChanged, this, &SmartHomeConfig::fillWindowRoomPassport);
-//            connect( countWindowBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &SmartHomeConfig::fillWindowRoomPassport );
+//            connect(squareSpinBox, &QDoubleSpinBox::textChanged, this, &SmartHomeConfig::fillSquareRoomPassport);
+            connect(squareSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SmartHomeConfig::fillSquareRoomPassport);
+//            connect(countWindowBox, &QSpinBox::textChanged, this, &SmartHomeConfig::fillWindowRoomPassport);
+            connect( countWindowBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &SmartHomeConfig::fillWindowRoomPassport );
             break;
         }
         case Sensor:
@@ -305,7 +314,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 
             // 1 строка 0 ячейка          Наименование
             QComboBox* cBoxSensor = new QComboBox(this);
-            cBoxSensor->addItems({"Температура", "Влажность", "Дым"});
+            cBoxSensor->addItems({"Температуры", "Влажности", "Дыма"});
             PassportTable->insertRow(1);
             PassportTable->setCellWidget(1, 0, cBoxSensor);
 
@@ -445,7 +454,7 @@ void SmartHomeConfig::fillNameRoomPassport()
 
 void SmartHomeConfig::fillSquareRoomPassport()
 {
-    QLineEdit*squareEditPassport = qobject_cast<QLineEdit*>(sender());
+    QDoubleSpinBox* squareEditPassport = qobject_cast<QDoubleSpinBox*>(sender());
     if(squareEditPassport == nullptr)
     {
         qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
@@ -469,12 +478,12 @@ void SmartHomeConfig::fillSquareRoomPassport()
         return;
     }
 
-    room->square = squareEditPassport->text();
+    room->square = squareEditPassport->value();
     ObjectTreeItem->setData(1, Qt::DisplayRole, room->square);
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::fillWindowRoomPassport(QString str)
+void SmartHomeConfig::fillWindowRoomPassport(int count)
 {
     QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
     if(ObjectsTreeItem == nullptr)
@@ -493,7 +502,7 @@ void SmartHomeConfig::fillWindowRoomPassport(QString str)
         return;
     }
 
-    room->countWindow = str.toInt();
+    room->countWindow = count;
     ObjectsTreeItem->setData(2, Qt::DisplayRole, room->countWindow);
 }
 //------------------------------------------------------------------------------------
