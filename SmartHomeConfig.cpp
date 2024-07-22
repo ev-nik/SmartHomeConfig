@@ -104,6 +104,34 @@ bool SmartHomeConfig::eventFilter(QObject* obj, QEvent* event)
                 if(deleteButton->isEnabled())
                 {
                     deleteItem();
+                    return false;
+                }
+            }
+
+            if(keyEvent->modifiers() == Qt::ControlModifier && keyEvent->key()==Qt::Key_N)
+            {
+                QTreeWidgetItem* currentItem = ObjectsTree->currentItem();
+
+                if(currentItem == nullptr)
+                {
+                    addHouse();
+                    return false;
+                }
+
+                int itemType = currentItem->data(0, Qt::UserRole).toInt();
+                switch(itemType)
+                {
+                    case House:
+                    {
+                        addRoom();
+                        break;
+                    }
+                    case Room:
+                    {
+                        addSensor();
+                        break;
+                    }
+                    default: break;
                 }
             }
         }
