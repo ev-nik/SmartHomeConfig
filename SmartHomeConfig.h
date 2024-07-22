@@ -95,6 +95,9 @@ public slots:
 
     void fillNameSensorPassport();
     void fillViewSensorPassport();
+
+protected:
+    bool eventFilter(QObject* obj, QEvent* event);
 };
 //------------------------------------------------------------------------------------
 #endif // SMARTHOMECONFIG_H

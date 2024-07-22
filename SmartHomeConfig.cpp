@@ -12,6 +12,8 @@
 #include <QSpinBox>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QEvent>
+#include <QKeyEvent>
 //------------------------------------------------------------------------------------
 
 enum HouseObject
@@ -25,6 +27,7 @@ enum HouseObject
 SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 {
     qApp->installEventFilter(this);
+
     { // Отображение окна по центру экрана
         int width = 900;
         int height = 500;
@@ -85,6 +88,28 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::activButton);
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::showPassport);
+}
+//------------------------------------------------------------------------------------
+
+bool SmartHomeConfig::eventFilter(QObject* obj, QEvent* event)
+{
+    if(event->type() == QEvent::KeyPress)
+    {
+        if(obj == ObjectsTree)
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+
+            if(keyEvent->key() == Qt::Key_Delete)
+            {
+                if(deleteButton->isEnabled())
+                {
+                    deleteItem();
+                }
+            }
+        }
+    }
+
+    return false;
 }
 //------------------------------------------------------------------------------------
 
