@@ -37,7 +37,7 @@ struct PropRoom
 struct PropSensor
 {
     QString name;
-    QString viewSensor;
+    int typeSensor;
     QString id;
 
     PropSensor()
@@ -94,7 +94,7 @@ public slots:
     void fillWindowRoomPassport(int count);
 
     void fillNameSensorPassport();
-    void fillViewSensorPassport();
+    void fillTypeSensorPassport();
 
 protected:
     bool eventFilter(QObject* obj, QEvent* event);

@@ -313,10 +313,6 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             nameEdit->setFrame(false);
             nameEdit->setText("");
 
-//            QLineEdit* squareEdit = new QLineEdit(this);
-//            squareEdit->setFrame(false);
-//            squareEdit->setText("");
-
              QDoubleSpinBox* squareSpinBox = new QDoubleSpinBox(this);
              squareSpinBox->setFrame(false);
              squareSpinBox->setValue(0);
@@ -331,7 +327,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
                 // 1 строка 1 ячейка         55м2`
-                PassportTable->setCellWidget(1, 1, /*squareEdit*/squareSpinBox);
+                PassportTable->setCellWidget(1, 1, squareSpinBox);
 
                 // 2 строка 1 ячейка         кол-во окон`
                 PassportTable->setCellWidget(2, 1, countWindowBox);
@@ -365,11 +361,10 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->insertRow(0);
             PassportTable->setItem(0, 0, name);
 
-            // 1 строка 0 ячейка          Наименование
-            QComboBox* cBoxSensor = new QComboBox(this);
-            cBoxSensor->addItems({"Температуры", "Влажности", "Дыма"});
+            QTableWidgetItem* typeItem = new QTableWidgetItem();
+            typeItem->setData(Qt::DisplayRole, "Тип");
             PassportTable->insertRow(1);
-            PassportTable->setCellWidget(1, 0, cBoxSensor);
+            PassportTable->setItem(1, 0, typeItem);
 
             QString idSensorItem = item->data(0, Qt::ToolTipRole).toString();
 
@@ -379,17 +374,17 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             nameEdit->setFrame(false);
             nameEdit->setText("");
 
-            QLineEdit* valSensorEdit = new QLineEdit(this);
-            valSensorEdit->setFrame(false);
-            valSensorEdit->setText("1");
+            QComboBox* cBoxSensor = new QComboBox(this);
+            cBoxSensor->addItems({"Температуры", "Влажности", "Дыма"});
+            PassportTable->setCellWidget(1, 1, cBoxSensor);
 
             if(properties == nullptr)
             {
-                // 0 строка 1 ячейка          Датчик
+//                // 0 строка 1 ячейка          Датчик
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
-                // 1 строка 1 ячейка          Значение датчика
-                PassportTable->setCellWidget(1, 1, valSensorEdit);
+                // 1 строка 1 ячейка          Тип датчика
+                PassportTable->setCellWidget(1, 1, cBoxSensor);
                 break;
             }
 
@@ -397,12 +392,12 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             nameEdit->setText(properties->name);
             PassportTable->setCellWidget(0, 1, nameEdit);
 
-            // 1 строка 1 ячейка          Значение датчика
-            valSensorEdit->setText(properties->viewSensor);
-            PassportTable->setCellWidget(1, 1, valSensorEdit);
+            // 1 строка 1 ячейка          Тип датчика
+            cBoxSensor->setCurrentIndex(properties->typeSensor);
+            PassportTable->setCellWidget(1, 1, cBoxSensor);
 
             connect(nameEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillNameSensorPassport);
-            connect(valSensorEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillViewSensorPassport);
+            connect( cBoxSensor, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SmartHomeConfig::fillTypeSensorPassport );
             break;
         }
         default: break;
@@ -591,9 +586,9 @@ void SmartHomeConfig::fillNameSensorPassport()
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::fillViewSensorPassport()
+void SmartHomeConfig::fillTypeSensorPassport()
 {
-    QLineEdit* cBoxEditPassport = qobject_cast<QLineEdit*>(sender());
+    QComboBox* cBoxEditPassport = qobject_cast<QComboBox*>(sender());
     if(cBoxEditPassport == nullptr)
     {
         qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
@@ -617,7 +612,8 @@ void SmartHomeConfig::fillViewSensorPassport()
         return;
     }
 
-    sensor->viewSensor = cBoxEditPassport->text();
+    sensor->typeSensor = cBoxEditPassport->currentIndex();
+    ObjectsTreeItem->setData(1, Qt::DisplayRole, sensor->typeSensor);
 }
 //------------------------------------------------------------------------------------
 
