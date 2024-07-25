@@ -375,7 +375,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             nameEdit->setText("");
 
             QComboBox* cBoxSensor = new QComboBox(this);
-            cBoxSensor->addItems({"Температуры", "Влажности", "Дыма"});
+            cBoxSensor->addItems({"Температура", "Влажность", "Дым"});
             PassportTable->setCellWidget(1, 1, cBoxSensor);
 
             if(properties == nullptr)
