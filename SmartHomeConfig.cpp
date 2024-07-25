@@ -339,8 +339,8 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->setCellWidget(0, 1, nameEdit);
 
             // 1 строка 1 ячейка         55м2`
-            /*squareEdit*/squareSpinBox->setValue(properties->square);
-            PassportTable->setCellWidget(1, 1,  /*squareEdit*/squareSpinBox);
+            squareSpinBox->setValue(properties->square);
+            PassportTable->setCellWidget(1, 1, squareSpinBox);
 
             // 2 строка 1 ячейка         кол-во окон
             countWindowBox->setValue(properties->countWindow);
@@ -465,7 +465,6 @@ void SmartHomeConfig::fillAddressHousePassport()
     }
 
     house->address = addressEditPassport->text();
-    ObjectsTreeItem->setData(1, Qt::DisplayRole, house->address);
 }
 //------------------------------------------------------------------------------------
 
@@ -527,7 +526,6 @@ void SmartHomeConfig::fillSquareRoomPassport()
     }
 
     room->square = squareEditPassport->value();
-    ObjectTreeItem->setData(1, Qt::DisplayRole, room->square);
 }
 //------------------------------------------------------------------------------------
 
@@ -551,7 +549,6 @@ void SmartHomeConfig::fillWindowRoomPassport(int count)
     }
 
     room->countWindow = count;
-    ObjectsTreeItem->setData(2, Qt::DisplayRole, room->countWindow);
 }
 //------------------------------------------------------------------------------------
 
@@ -613,7 +610,6 @@ void SmartHomeConfig::fillTypeSensorPassport()
     }
 
     sensor->typeSensor = cBoxEditPassport->currentIndex();
-    ObjectsTreeItem->setData(1, Qt::DisplayRole, sensor->typeSensor);
 }
 //------------------------------------------------------------------------------------
 
