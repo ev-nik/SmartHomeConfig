@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QTableWidget>
 #include <QComboBox>
+#include <QTcpSocket>
 //------------------------------------------------------------------------------------
 struct PropHouse
 {
@@ -61,7 +62,6 @@ private:
     QPushButton* addHouseButton;
     QPushButton* addRoomButton;
     QPushButton* addSensorButton;
-
     QPushButton* deleteButton;
 
 public:
@@ -98,6 +98,25 @@ public slots:
 
 protected:
     bool eventFilter(QObject* obj, QEvent* event);
+
+private:
+    QPushButton* connectButton;
+
+    QTcpSocket* socket;
+    QByteArray data;
+    quint16 nextBlockSize;
+
+    void sendToServer(QString str);
+
+private slots:
+    void connectToServer();
+    void stateChangeSocket(QAbstractSocket::SocketState socketState);
+
+public slots:
+    void readyRead();
+
+
+
 };
 //------------------------------------------------------------------------------------
 #endif // SMARTHOMECONFIG_H

@@ -7,8 +7,8 @@ int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
 
-    SmartHomeConfig sM;
-    sM.show();
+    SmartHomeConfig sHC;
+    sHC.show();
 
     return a.exec();
 }

@@ -14,6 +14,8 @@
 #include <QDesktopWidget>
 #include <QEvent>
 #include <QKeyEvent>
+#include <QThread>
+#include <QTime>
 //------------------------------------------------------------------------------------
 
 enum HouseObject
@@ -64,6 +66,9 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     deleteButton = new QPushButton(this);
     deleteButton->setText("Удалить");
 
+    connectButton = new QPushButton(this);
+    connectButton->setText("Connect");
+
     activButton(nullptr);
 
     QHBoxLayout* hLayout1 = new QHBoxLayout();
@@ -72,6 +77,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     hLayout1->addWidget(addSensorButton);
     hLayout1->addWidget(deleteButton);
     hLayout1->addStretch();
+    hLayout1->addWidget(connectButton);
 
     QHBoxLayout* hLayout2 = new QHBoxLayout();
     hLayout2->addWidget(ObjectsTree);
@@ -81,6 +87,8 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     vLayout->addLayout(hLayout1);
     vLayout->addLayout(hLayout2);
 
+    socket = new QTcpSocket(this);
+
     connect(addHouseButton,  &QPushButton::clicked,     this, &SmartHomeConfig::addHouse);
     connect(addRoomButton,   &QPushButton::clicked,     this, &SmartHomeConfig::addRoom);
     connect(addSensorButton, &QPushButton::clicked,     this, &SmartHomeConfig::addSensor);
@@ -88,6 +96,88 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::activButton);
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::showPassport);
+
+    connect(socket,          &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
+    connect(connectButton,   &QPushButton::clicked, this, &SmartHomeConfig::connectToServer);
+    connect(socket, &QTcpSocket::readyRead, this, &SmartHomeConfig::readyRead);
+    connect(socket, &QTcpSocket::stateChanged, this, &SmartHomeConfig::stateChangeSocket);
+
+
+    nextBlockSize = 0;
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::stateChangeSocket(QAbstractSocket::SocketState socketState)
+{
+//    qDebug() << QTime::currentTime() << socketState;
+
+    if(socketState == QTcpSocket::ConnectedState)
+    {
+        connectButton->setEnabled(false);
+        qDebug() << "ConnectedState";
+        sendToServer("tratata");
+    }
+    else if(socketState == QTcpSocket::UnconnectedState)
+    {
+        connectButton->setEnabled(true);
+        qDebug() << "UnconnectedState";
+    }
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::connectToServer()
+{
+    socket->connectToHost("127.0.0.1", 3333);
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::sendToServer(QString str)
+{
+    data.clear();
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    out << quint16(0) << str;
+    out.device()->seek(0);
+    out << quint16(data.size() - sizeof(quint16));
+    socket->write(data);
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::readyRead()
+{
+    QDataStream in(socket);
+    in.setVersion(QDataStream::Qt_5_15);
+
+    if(in.status() == QDataStream::Ok)
+    {
+        for(;;)
+        {
+            if(nextBlockSize == 0)
+            {
+                if(socket->bytesAvailable() < 2)
+                {
+                    break;
+                }
+
+                in >> nextBlockSize;
+
+                if(socket->bytesAvailable() < nextBlockSize)
+                {
+                    break;
+                }
+
+                QString str;
+                in >> str;
+                nextBlockSize = 0;
+                qDebug() << "from server" << str;
+                break;
+            }
+            else
+            {
+                qDebug() << "send server->client error!!!!!!!!!";
+            }
+        }
+    }
 }
 //------------------------------------------------------------------------------------
 
