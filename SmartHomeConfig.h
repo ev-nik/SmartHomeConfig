@@ -114,9 +114,6 @@ private slots:
 
 public slots:
     void readyRead();
-
-
-
 };
 //------------------------------------------------------------------------------------
 #endif // SMARTHOMECONFIG_H

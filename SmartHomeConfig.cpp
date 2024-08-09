@@ -109,18 +109,24 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
 void SmartHomeConfig::stateChangeSocket(QAbstractSocket::SocketState socketState)
 {
-//    qDebug() << QTime::currentTime() << socketState;
-
-    if(socketState == QTcpSocket::ConnectedState)
+    switch(socketState)
     {
-        connectButton->setEnabled(false);
-        qDebug() << "ConnectedState";
-        sendToServer("tratata");
-    }
-    else if(socketState == QTcpSocket::UnconnectedState)
-    {
-        connectButton->setEnabled(true);
-        qDebug() << "UnconnectedState";
+        case QTcpSocket::ConnectedState:
+        {
+            connectButton->setEnabled(false);
+            sendToServer("tratata");
+            break;
+        }
+        case QTcpSocket::UnconnectedState:
+        {
+            connectButton->setEnabled(true);
+            break;
+        }
+        default:
+        {
+            qWarning() << Q_FUNC_INFO << "no signals stateChangeSocket";
+            break;
+        }
     }
 }
 //------------------------------------------------------------------------------------
