@@ -20,6 +20,7 @@ struct PropHouse
         name = "Дом";
     }
 };
+//------------------------------------------------------------------------------------
 
 struct PropRoom
 {
@@ -34,6 +35,7 @@ struct PropRoom
         name = "Комната";
     }
 };
+//------------------------------------------------------------------------------------
 
 struct PropSensor
 {
@@ -101,12 +103,17 @@ protected:
 
 private:
     QPushButton* connectButton;
+    QPushButton* sendButton;
 
     QTcpSocket* socket;
     QByteArray data;
     quint16 nextBlockSize;
 
     void sendToServer(QString str);
+
+    void sendVecHouseToServer(PropHouse* propHouse);
+    void send();
+
 
 private slots:
     void connectToServer();

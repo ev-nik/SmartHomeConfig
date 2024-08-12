@@ -69,6 +69,9 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     connectButton = new QPushButton(this);
     connectButton->setText("Connect");
 
+    sendButton = new QPushButton(this);
+    sendButton->setText("Send");
+
     activButton(nullptr);
 
     QHBoxLayout* hLayout1 = new QHBoxLayout();
@@ -78,6 +81,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     hLayout1->addWidget(deleteButton);
     hLayout1->addStretch();
     hLayout1->addWidget(connectButton);
+    hLayout1->addWidget(sendButton);
 
     QHBoxLayout* hLayout2 = new QHBoxLayout();
     hLayout2->addWidget(ObjectsTree);
@@ -102,6 +106,8 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     connect(socket, &QTcpSocket::readyRead, this, &SmartHomeConfig::readyRead);
     connect(socket, &QTcpSocket::stateChanged, this, &SmartHomeConfig::stateChangeSocket);
 
+//    connect(sendButton, &QPushButton::clicked, this, &SmartHomeConfig::sendVecHouseToServer);
+    connect(sendButton, &QPushButton::clicked, this, &SmartHomeConfig::send);
 
     nextBlockSize = 0;
 }
@@ -114,17 +120,19 @@ void SmartHomeConfig::stateChangeSocket(QAbstractSocket::SocketState socketState
         case QTcpSocket::ConnectedState:
         {
             connectButton->setEnabled(false);
-            sendToServer("tratata");
+            sendButton->setEnabled(true);
+//            send();
+//            sendToServer("tratata");
             break;
         }
         case QTcpSocket::UnconnectedState:
         {
             connectButton->setEnabled(true);
+            sendButton->setEnabled(false);
             break;
         }
         default:
         {
-            qWarning() << Q_FUNC_INFO << "no signals stateChangeSocket";
             break;
         }
     }
@@ -137,15 +145,43 @@ void SmartHomeConfig::connectToServer()
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::sendToServer(QString str)
+//void SmartHomeConfig::sendToServer(QString str)
+//{
+//    data.clear();
+//    QDataStream out(&data, QIODevice::WriteOnly);
+//    out.setVersion(QDataStream::Qt_5_15);
+//    out << quint16(0) << str;
+//    out.device()->seek(0);
+//    out << quint16(data.size() - sizeof(quint16));
+//    socket->write(data);
+//}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::send()
 {
-    data.clear();
-    QDataStream out(&data, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15);
-    out << quint16(0) << str;
-    out.device()->seek(0);
-    out << quint16(data.size() - sizeof(quint16));
-    socket->write(data);
+    PropHouse* propHouse;
+
+    for(int i = 0; i < vectorHouse.count(); i++)
+    {
+        propHouse = vectorHouse[i];
+        sendVecHouseToServer(propHouse);
+    }
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::sendVecHouseToServer(PropHouse* propHouse)
+{
+            data.clear();
+            QDataStream out(&data, QIODevice::WriteOnly);
+            out.setVersion(QDataStream::Qt_5_15);
+            out << quint16(0) << propHouse->name << propHouse->address << propHouse->id;
+            qDebug() << propHouse->name << propHouse->address << propHouse->id;
+            out.device()->seek(0);
+            out << quint16(data.size() - sizeof(quint16));
+
+            quint16 qint16 = quint16(data.size() - sizeof(quint16));
+            qDebug() << qint16;
+            socket->write(data);
 }
 //------------------------------------------------------------------------------------
 
