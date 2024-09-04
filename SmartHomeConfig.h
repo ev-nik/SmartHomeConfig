@@ -65,6 +65,8 @@ private:
     QPushButton* addRoomButton;
     QPushButton* addSensorButton;
     QPushButton* deleteButton;
+    QPushButton* saveButton;
+    QPushButton* loadButton;
 
 public:
     QVector<PropHouse*> vectorHouse;
@@ -111,8 +113,13 @@ private:
 
     void sendToServer(QString str);
 
-    void sendVecHouseToServer(PropHouse* propHouse);
+    void sendHousesToServer (PropHouse*  propHouse);
+    void sendRoomsToServer  (PropRoom*   propRoom);
+    void sendSensorsToServer(PropSensor* propSensor);
     void send();
+
+    void saveToFile();
+    void load();
 
 
 private slots:

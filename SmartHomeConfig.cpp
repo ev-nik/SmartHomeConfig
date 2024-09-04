@@ -72,6 +72,12 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     sendButton = new QPushButton(this);
     sendButton->setText("Send");
 
+    saveButton = new QPushButton(this);
+    saveButton->setText("Save");
+
+    loadButton = new QPushButton(this);
+    loadButton->setText("Load");
+
     activButton(nullptr);
 
     QHBoxLayout* hLayout1 = new QHBoxLayout();
@@ -82,6 +88,8 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     hLayout1->addStretch();
     hLayout1->addWidget(connectButton);
     hLayout1->addWidget(sendButton);
+    hLayout1->addWidget(saveButton);
+    hLayout1->addWidget(loadButton);
 
     QHBoxLayout* hLayout2 = new QHBoxLayout();
     hLayout2->addWidget(ObjectsTree);
@@ -101,15 +109,86 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::activButton);
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::showPassport);
 
-    connect(socket,          &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
+//    connect(socket,          &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
     connect(connectButton,   &QPushButton::clicked, this, &SmartHomeConfig::connectToServer);
     connect(socket, &QTcpSocket::readyRead, this, &SmartHomeConfig::readyRead);
     connect(socket, &QTcpSocket::stateChanged, this, &SmartHomeConfig::stateChangeSocket);
 
-//    connect(sendButton, &QPushButton::clicked, this, &SmartHomeConfig::sendVecHouseToServer);
     connect(sendButton, &QPushButton::clicked, this, &SmartHomeConfig::send);
 
+    connect(saveButton, &QPushButton::clicked, this, &SmartHomeConfig::saveToFile);
+    connect(loadButton, &QPushButton::clicked, this, &SmartHomeConfig::load);
+
     nextBlockSize = 0;
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::saveToFile()
+{
+    QFile fileOut("E:/myHome.bin");
+
+    if(QFile::exists("E:/myHome.bin"))
+    {
+        QFile::remove("E:/myHome.bin");
+    }
+
+    if(!fileOut.open(QIODevice::WriteOnly))
+    {
+        qWarning() << Q_FUNC_INFO << "E:/myHome.bin" << "not open";
+        return;
+    }
+
+    QDataStream dataStream(&fileOut);
+    for(PropHouse* propHouse : vectorHouse)
+    {
+        dataStream << quint8(House) << propHouse->name << propHouse->address << propHouse->id;/////////////////////////
+
+        qDebug() << "name" << propHouse->name << "\n" << "address" << propHouse->address << "\n" << "id" << propHouse->id;
+    }
+
+    fileOut.close();
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::load()
+{
+    QString pathIn = "E:/myHome.bin";
+    QFile fileIn(pathIn);
+    if(!fileIn.open(QIODevice::ReadOnly))
+    {
+        qWarning() << Q_FUNC_INFO << "E:/myHome.bin" << "not open";
+        qWarning() << Q_FUNC_INFO << "Failed open file for read: " << pathIn;
+        return;
+    }
+
+    QDataStream dataStream(&fileIn);
+
+    while( dataStream.atEnd() == false )
+    {
+        qDebug() << "--------------------------";
+        PropHouse* propHouse = new PropHouse();
+
+        quint8 typeObject;
+
+        dataStream >> typeObject >> propHouse->name >> propHouse->address >> propHouse->id;
+
+        vectorHouse.append(propHouse);
+
+        QTreeWidgetItem* houseItem = new QTreeWidgetItem(ObjectsTree);
+        houseItem->setData(0, Qt::DisplayRole, propHouse->name);
+        houseItem->setData(0, Qt::UserRole, House);
+        houseItem->setData(0, Qt::ToolTipRole, propHouse->id);
+
+        //    Установить цвет фона/цвет текста/стиль текста
+        //    houseItem->setData(0, Qt::BackgroundRole, QBrush(Qt::green));
+        houseItem->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
+
+        vectorHouse.append(propHouse);
+
+        ObjectsTree->setCurrentItem(houseItem);
+    }
+
+    fileIn.close();
 }
 //------------------------------------------------------------------------------------
 
@@ -121,8 +200,6 @@ void SmartHomeConfig::stateChangeSocket(QAbstractSocket::SocketState socketState
         {
             connectButton->setEnabled(false);
             sendButton->setEnabled(true);
-//            send();
-//            sendToServer("tratata");
             break;
         }
         case QTcpSocket::UnconnectedState:
@@ -160,28 +237,71 @@ void SmartHomeConfig::connectToServer()
 void SmartHomeConfig::send()
 {
     PropHouse* propHouse;
-
     for(int i = 0; i < vectorHouse.count(); i++)
     {
         propHouse = vectorHouse[i];
-        sendVecHouseToServer(propHouse);
+        sendHousesToServer(propHouse);
+    }
+
+    PropRoom* propRoom;
+    for(int i = 0; i < vectorRoom.count(); i++)
+    {
+        propRoom = vectorRoom[i];
+        sendRoomsToServer(propRoom);
+    }
+
+    PropSensor* propSensor;
+    for(int i = 0; i < vectorSensor.count(); i++)
+    {
+        propSensor = vectorSensor[i];
+        sendSensorsToServer(propSensor);
     }
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::sendVecHouseToServer(PropHouse* propHouse)
+void SmartHomeConfig::sendHousesToServer(PropHouse* propHouse)
 {
-            data.clear();
-            QDataStream out(&data, QIODevice::WriteOnly);
-            out.setVersion(QDataStream::Qt_5_15);
-            out << quint16(0) << propHouse->name << propHouse->address << propHouse->id;
-            qDebug() << propHouse->name << propHouse->address << propHouse->id;
-            out.device()->seek(0);
-            out << quint16(data.size() - sizeof(quint16));
+    data.clear();
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    out << quint16(0) << House << propHouse->name << propHouse->address << propHouse->id;
+    qDebug() << propHouse->name << propHouse->address << propHouse->id;
+    out.device()->seek(0);
+    out << quint16(data.size() - sizeof(quint16));
+    quint16 qint16 = quint16(data.size() - sizeof(quint16));
+    qDebug() << qint16;
+    socket->write(data);
+}
+//------------------------------------------------------------------------------------
 
-            quint16 qint16 = quint16(data.size() - sizeof(quint16));
-            qDebug() << qint16;
-            socket->write(data);
+void SmartHomeConfig::sendRoomsToServer(PropRoom* propRoom)
+{
+    data.clear();
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    out << quint16(0) << Room << propRoom->name << propRoom->square << propRoom->countWindow << propRoom->id;
+    qDebug() << propRoom->name << propRoom->square << propRoom->countWindow << propRoom->id;
+    out.device()->seek(0);
+    out << quint16(data.size() - sizeof(quint16));
+//    quint16 qint16 = quint16(data.size() - sizeof(quint16));
+//    qDebug() << qint16;
+    socket->write(data);
+}
+//------------------------------------------------------------------------------------
+
+
+void SmartHomeConfig::sendSensorsToServer(PropSensor* propSensor)
+{
+    data.clear();
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    out << quint16(0) << Sensor << propSensor->name << propSensor->typeSensor << propSensor->id;
+    qDebug() << propSensor->name << propSensor->typeSensor << propSensor->id;
+    out.device()->seek(0);
+    out << quint16(data.size() - sizeof(quint16));
+//    quint16 qint16 = quint16(data.size() - sizeof(quint16));
+//    qDebug() << qint16;
+    socket->write(data);
 }
 //------------------------------------------------------------------------------------
 
@@ -353,7 +473,6 @@ void SmartHomeConfig::addSensor()
     ObjectsTree->setCurrentItem(sensorItem);
 }
 //------------------------------------------------------------------------------------
-
 
 void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 {
