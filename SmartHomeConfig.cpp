@@ -222,25 +222,29 @@ void SmartHomeConfig::load()
 
         for(int j = 0; j < vectorRoom.size(); j++)
         {
-            if(vectorRoom[j]->idHouse == vectorHouse[i]->id)
+            if(vectorRoom[j]->idHouse != vectorHouse[i]->id)
             {
-                QTreeWidgetItem* roomItem = new QTreeWidgetItem(houseItem);
-                roomItem->setData(0, Qt::DisplayRole, vectorRoom[j]->name);
-                roomItem->setData(0, Qt::UserRole, Room);
-                roomItem->setData(0, Qt::ToolTipRole, vectorRoom[j]->id);
-                ObjectsTree->setCurrentItem(roomItem);
+                continue;
+            }
 
-                for(int k = 0; k < vectorSensor.size(); k++)
+            QTreeWidgetItem* roomItem = new QTreeWidgetItem(houseItem);
+            roomItem->setData(0, Qt::DisplayRole, vectorRoom[j]->name);
+            roomItem->setData(0, Qt::UserRole, Room);
+            roomItem->setData(0, Qt::ToolTipRole, vectorRoom[j]->id);
+            ObjectsTree->setCurrentItem(roomItem);
+
+            for(int k = 0; k < vectorSensor.size(); k++)
+            {
+                if(vectorSensor[k]->idRoom == vectorRoom[j]->id)
                 {
-                    if(vectorSensor[k]->idRoom == vectorRoom[j]->id)
-                    {
-                        QTreeWidgetItem* sensorItem = new QTreeWidgetItem(roomItem);
-                        sensorItem->setData(0, Qt::DisplayRole, vectorSensor[k]->name);
-                        sensorItem->setData(0, Qt::UserRole, Sensor);
-                        sensorItem->setData(0, Qt::ToolTipRole, vectorSensor[k]->id);
-                        ObjectsTree->setCurrentItem(sensorItem);
-                    }
+                    continue;
                 }
+
+                QTreeWidgetItem* sensorItem = new QTreeWidgetItem(roomItem);
+                sensorItem->setData(0, Qt::DisplayRole, vectorSensor[k]->name);
+                sensorItem->setData(0, Qt::UserRole, Sensor);
+                sensorItem->setData(0, Qt::ToolTipRole, vectorSensor[k]->id);
+                ObjectsTree->setCurrentItem(sensorItem);
             }
         }
     }
@@ -275,18 +279,6 @@ void SmartHomeConfig::connectToServer()
 {
     socket->connectToHost("127.0.0.1", 3333);
 }
-//------------------------------------------------------------------------------------
-
-//void SmartHomeConfig::sendToServer(QString str)
-//{
-//    data.clear();
-//    QDataStream out(&data, QIODevice::WriteOnly);
-//    out.setVersion(QDataStream::Qt_5_15);
-//    out << quint16(0) << str;
-//    out.device()->seek(0);
-//    out << quint16(data.size() - sizeof(quint16));
-//    socket->write(data);
-//}
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::send()
