@@ -1012,6 +1012,7 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item)
     addRoomButton  ->setEnabled(false);
     addSensorButton->setEnabled(false);
     deleteButton   ->setEnabled(false);
+    saveButton     ->setEnabled(false);
 
     if(item == nullptr)
     {
@@ -1019,6 +1020,7 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item)
     }
 
     deleteButton->setEnabled(true);
+    saveButton  ->setEnabled(true);
 
     int itemType = item->data(0, Qt::UserRole).toInt();
 
