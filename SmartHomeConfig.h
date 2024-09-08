@@ -12,7 +12,7 @@
 struct PropHouse
 {
     QString name;
-    QString address;
+    QString adress;
     QString id;
 
     PropHouse()
@@ -28,6 +28,7 @@ struct PropRoom
     double square;
     int countWindow;
     QString id;
+    QString idHouse;
 
     PropRoom()
     {
@@ -42,6 +43,7 @@ struct PropSensor
     QString name;
     int typeSensor;
     QString id;
+    QString idRoom;
 
     PropSensor()
     {
@@ -91,7 +93,7 @@ public slots:
     void showPassport(QTreeWidgetItem* item);
 
     void fillNameHousePassport();
-    void fillAddressHousePassport();
+    void fillAdressHousePassport();
 
     void fillNameRoomPassport();
     void fillSquareRoomPassport();
