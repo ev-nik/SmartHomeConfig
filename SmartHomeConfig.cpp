@@ -289,6 +289,7 @@ void SmartHomeConfig::load()
     QTreeWidgetItem* houseItem = ObjectsTree->topLevelItem(0);
     ObjectsTree->setCurrentItem(houseItem);
 
+    QFile(pathIn).remove();
 }
 //------------------------------------------------------------------------------------
 
