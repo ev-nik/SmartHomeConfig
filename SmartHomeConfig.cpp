@@ -16,6 +16,8 @@
 #include <QKeyEvent>
 #include <QThread>
 #include <QTime>
+#include <QFileDialog>
+#include <QMessageBox>
 //------------------------------------------------------------------------------------
 
 enum HouseObject
@@ -141,17 +143,29 @@ void SmartHomeConfig::saveToFile()
     QDataStream dataStream(&fileOut);
     for(PropHouse* propHouse : vectorHouse)
     {
-        dataStream << quint8(House) << propHouse->name << propHouse->adress << propHouse->id;
+        dataStream << quint8(House)
+                   << propHouse->name
+                   << propHouse->address
+                   << propHouse->id;
     }
 
     for(PropRoom* propRoom : vectorRoom)
     {
-        dataStream << quint8(Room) << propRoom->name << propRoom->square << propRoom->countWindow << propRoom->id << propRoom->idHouse;
+        dataStream << quint8(Room)
+                   << propRoom->name
+                   << propRoom->square
+                   << propRoom->countWindow
+                   << propRoom->id
+                   << propRoom->idHouse;
     }
 
     for(PropSensor* propSensor : vectorSensor)
     {
-        dataStream << quint8(Sensor) << propSensor->name << propSensor->typeSensor << propSensor->id << propSensor->idRoom;
+        dataStream << quint8(Sensor)
+                   << propSensor->name
+                   << propSensor->typeSensor
+                   << propSensor->id
+                   << propSensor->idRoom;
     }
 
     fileOut.close();
@@ -160,11 +174,22 @@ void SmartHomeConfig::saveToFile()
 
 void SmartHomeConfig::load()
 {
-    QString pathIn = "E:/myHome.bin";
+    QString pathIn = QFileDialog::getOpenFileName(this, "Выберите файл конфигурации", "E:/", "*.bin", nullptr, QFileDialog::DontUseNativeDialog);
+
+    if(pathIn.isEmpty())
+    {
+        return;
+    }
+
     QFile fileIn(pathIn);
+
     if(!fileIn.open(QIODevice::ReadOnly))
     {
-        qWarning() << Q_FUNC_INFO << "Failed open file for read: " << pathIn;
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             QString("Не удалось открыть файл: %1").arg(pathIn),
+                             QMessageBox::Close,
+                             QMessageBox::Close);
         return;
     }
 
@@ -172,10 +197,6 @@ void SmartHomeConfig::load()
 
     while( dataStream.atEnd() == false )
     {
-        PropHouse*  propHouse  = new PropHouse();
-        PropRoom*   propRoom   = new PropRoom();
-        PropSensor* propSensor = new PropSensor();
-
         quint8 typeObject;
         dataStream >> typeObject;
 
@@ -183,27 +204,37 @@ void SmartHomeConfig::load()
         {
             case House:
             {
-                dataStream >> propHouse->name >> propHouse->adress >> propHouse->id;
-
+                PropHouse*    propHouse  = new PropHouse();
+                dataStream >> propHouse->name
+                           >> propHouse->address
+                           >> propHouse->id;
                 vectorHouse.append(propHouse);
                 break;
             }
             case Room:
             {
-                dataStream >> propRoom->name >> propRoom->square >> propRoom->countWindow >> propRoom->id >> propRoom->idHouse;
-
+                PropRoom*     propRoom   = new PropRoom();
+                dataStream >> propRoom->name
+                           >> propRoom->square
+                           >> propRoom->countWindow
+                           >> propRoom->id
+                           >> propRoom->idHouse;
                 vectorRoom.append(propRoom);
                 break;
             }
             case Sensor:
             {
-                dataStream >> propSensor->name >> propSensor->typeSensor >> propSensor->id >> propSensor->idRoom;
-
+                PropSensor*   propSensor = new PropSensor();
+                dataStream >> propSensor->name
+                           >> propSensor->typeSensor
+                           >> propSensor->id
+                           >> propSensor->idRoom;
                 vectorSensor.append(propSensor);
                 break;
             }
             default:
             {
+                qWarning() << Q_FUNC_INFO << QString("Unknown type object: %1. Must been: House(%2) or Room(%3) or Sensor(%4)").arg(typeObject).arg(House).arg(Room).arg(Sensor);
                 break;
             }
         }
@@ -213,41 +244,51 @@ void SmartHomeConfig::load()
 
     for(int i = 0; i < vectorHouse.size(); i++)
     {
+        PropHouse* propHouse = vectorHouse[i];
+
         QTreeWidgetItem* houseItem = new QTreeWidgetItem(ObjectsTree);
-        houseItem->setData(0, Qt::DisplayRole, vectorHouse[i]->name);
+
+        houseItem->setData(0, Qt::DisplayRole, propHouse->name);
         houseItem->setData(0, Qt::UserRole, House);
-        houseItem->setData(0, Qt::ToolTipRole, vectorHouse[i]->id);
+        houseItem->setData(0, Qt::ToolTipRole, propHouse->id);
         houseItem->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
         ObjectsTree->setCurrentItem(houseItem);
 
         for(int j = 0; j < vectorRoom.size(); j++)
         {
-            if(vectorRoom[j]->idHouse != vectorHouse[i]->id)
+            PropRoom* propRoom = vectorRoom[j];
+
+            if(propRoom->idHouse != propHouse->id)
             {
                 continue;
             }
 
             QTreeWidgetItem* roomItem = new QTreeWidgetItem(houseItem);
-            roomItem->setData(0, Qt::DisplayRole, vectorRoom[j]->name);
+            roomItem->setData(0, Qt::DisplayRole, propRoom->name);
             roomItem->setData(0, Qt::UserRole, Room);
-            roomItem->setData(0, Qt::ToolTipRole, vectorRoom[j]->id);
-            ObjectsTree->setCurrentItem(roomItem);
+            roomItem->setData(0, Qt::ToolTipRole, propRoom->id);
 
             for(int k = 0; k < vectorSensor.size(); k++)
             {
-                if(vectorSensor[k]->idRoom == vectorRoom[j]->id)
+                PropSensor* propSensor = vectorSensor[k];
+
+                if(propSensor->idRoom != propRoom->id)
                 {
                     continue;
                 }
 
                 QTreeWidgetItem* sensorItem = new QTreeWidgetItem(roomItem);
-                sensorItem->setData(0, Qt::DisplayRole, vectorSensor[k]->name);
+                sensorItem->setData(0, Qt::DisplayRole, propSensor->name);
                 sensorItem->setData(0, Qt::UserRole, Sensor);
-                sensorItem->setData(0, Qt::ToolTipRole, vectorSensor[k]->id);
-                ObjectsTree->setCurrentItem(sensorItem);
+                sensorItem->setData(0, Qt::ToolTipRole, propSensor->id);
             }
         }
     }
+
+    ObjectsTree->expandAll();
+    QTreeWidgetItem* houseItem = ObjectsTree->topLevelItem(0);
+    ObjectsTree->setCurrentItem(houseItem);
+
 }
 //------------------------------------------------------------------------------------
 
@@ -311,8 +352,8 @@ void SmartHomeConfig::sendHousesToServer(PropHouse* propHouse)
     data.clear();
     QDataStream out(&data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_15);
-    out << quint16(0) << House << propHouse->name << propHouse->adress << propHouse->id;
-    qDebug() << propHouse->name << propHouse->adress << propHouse->id;
+    out << quint16(0) << House << propHouse->name << propHouse->address << propHouse->id;
+    qDebug() << propHouse->name << propHouse->address << propHouse->id;
     out.device()->seek(0);
     out << quint16(data.size() - sizeof(quint16));
     quint16 qint16 = quint16(data.size() - sizeof(quint16));
@@ -541,10 +582,10 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->setItem(0, 0, nameItem);
 
             // 1 строка 0 ячейка         Адрес
-            QTableWidgetItem* adressItem = new QTableWidgetItem();
-            adressItem->setData(Qt::DisplayRole, "Адрес");
+            QTableWidgetItem* addressItem = new QTableWidgetItem();
+            addressItem->setData(Qt::DisplayRole, "Адрес");
             PassportTable->insertRow(1);
-            PassportTable->setItem(1, 0, adressItem);
+            PassportTable->setItem(1, 0, addressItem);
 
             QString idHouseItem = item->data(0, Qt::ToolTipRole).toString();
 
@@ -554,9 +595,9 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             nameEdit->setFrame(false);
             nameEdit->setText("");
 
-            QLineEdit* adressEdit = new QLineEdit(this);
-            adressEdit->setFrame(false);
-            adressEdit->setText("");
+            QLineEdit* addressEdit = new QLineEdit(this);
+            addressEdit->setFrame(false);
+            addressEdit->setText("");
 
             if(properties == nullptr)
             {
@@ -565,7 +606,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
                 // 1 строка 1 ячейка         Ленина 101`
-                PassportTable->setCellWidget(1, 1, adressEdit);
+                PassportTable->setCellWidget(1, 1, addressEdit);
                 break;
             }
 
@@ -574,11 +615,11 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
             PassportTable->setCellWidget(0, 1, nameEdit);
 
             // 1 строка 1 ячейка         Ленина 101`
-            adressEdit->setText(properties->adress);
-            PassportTable->setCellWidget(1, 1, adressEdit);
+            addressEdit->setText(properties->address);
+            PassportTable->setCellWidget(1, 1, addressEdit);
 
             connect(nameEdit,    &QLineEdit::editingFinished, this, &SmartHomeConfig::fillNameHousePassport);
-            connect(adressEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillAdressHousePassport);
+            connect(addressEdit, &QLineEdit::editingFinished, this, &SmartHomeConfig::fillAddressHousePassport);
             break;
         }
         case Room:
@@ -732,11 +773,11 @@ void SmartHomeConfig::fillNameHousePassport()
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::fillAdressHousePassport()
+void SmartHomeConfig::fillAddressHousePassport()
 {
-    QLineEdit* adressEditPassport = qobject_cast<QLineEdit*>(sender());
+    QLineEdit* addressEditPassport = qobject_cast<QLineEdit*>(sender());
 
-    if(adressEditPassport == nullptr)
+    if(addressEditPassport == nullptr)
     {
         qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
         return;
@@ -760,7 +801,7 @@ void SmartHomeConfig::fillAdressHousePassport()
         return;
     }
 
-    house->adress = adressEditPassport->text();
+    house->address = addressEditPassport->text();
 }
 //------------------------------------------------------------------------------------
 

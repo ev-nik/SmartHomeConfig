@@ -12,7 +12,7 @@
 struct PropHouse
 {
     QString name;
-    QString adress;
+    QString address;
     QString id;
 
     PropHouse()
@@ -70,6 +70,8 @@ private:
     QPushButton* saveButton;
     QPushButton* loadButton;
 
+
+
 public:
     QVector<PropHouse*> vectorHouse;
     QVector<PropRoom*>  vectorRoom;
@@ -93,7 +95,7 @@ public slots:
     void showPassport(QTreeWidgetItem* item);
 
     void fillNameHousePassport();
-    void fillAdressHousePassport();
+    void fillAddressHousePassport();
 
     void fillNameRoomPassport();
     void fillSquareRoomPassport();
