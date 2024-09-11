@@ -246,13 +246,7 @@ void SmartHomeConfig::load()
     {
         PropHouse* propHouse = vectorHouse[i];
 
-        QTreeWidgetItem* houseItem = new QTreeWidgetItem(ObjectsTree);
-
-        houseItem->setData(0, Qt::DisplayRole, propHouse->name);
-        houseItem->setData(0, Qt::UserRole, House);
-        houseItem->setData(0, Qt::ToolTipRole, propHouse->id);
-        houseItem->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
-        ObjectsTree->setCurrentItem(houseItem);
+        QTreeWidgetItem* houseItem = createHouseItem(propHouse);
 
         for(int j = 0; j < vectorRoom.size(); j++)
         {
@@ -263,10 +257,7 @@ void SmartHomeConfig::load()
                 continue;
             }
 
-            QTreeWidgetItem* roomItem = new QTreeWidgetItem(houseItem);
-            roomItem->setData(0, Qt::DisplayRole, propRoom->name);
-            roomItem->setData(0, Qt::UserRole, Room);
-            roomItem->setData(0, Qt::ToolTipRole, propRoom->id);
+            QTreeWidgetItem* roomItem = createRoomItem(propRoom, houseItem);
 
             for(int k = 0; k < vectorSensor.size(); k++)
             {
@@ -277,10 +268,7 @@ void SmartHomeConfig::load()
                     continue;
                 }
 
-                QTreeWidgetItem* sensorItem = new QTreeWidgetItem(roomItem);
-                sensorItem->setData(0, Qt::DisplayRole, propSensor->name);
-                sensorItem->setData(0, Qt::UserRole, Sensor);
-                sensorItem->setData(0, Qt::ToolTipRole, propSensor->id);
+                QTreeWidgetItem* sensorItem = createSensorItem(propSensor, roomItem);
             }
         }
     }
@@ -289,7 +277,7 @@ void SmartHomeConfig::load()
     QTreeWidgetItem* houseItem = ObjectsTree->topLevelItem(0);
     ObjectsTree->setCurrentItem(houseItem);
 
-    QFile(pathIn).remove();
+    QFile(pathIn).remove(); /////////TODO
 }
 //------------------------------------------------------------------------------------
 
@@ -480,29 +468,32 @@ bool SmartHomeConfig::eventFilter(QObject* obj, QEvent* event)
 void SmartHomeConfig::addHouse()
 {
     PropHouse* propHouse = new PropHouse();
-    QString uuidHouse = QUuid::createUuid().toString();
+    propHouse->id = QUuid::createUuid().toString();
+    vectorHouse.append(propHouse);
 
+    QTreeWidgetItem* houseItem = createHouseItem(propHouse);
+
+    ObjectsTree->setCurrentItem(houseItem);
+}
+//------------------------------------------------------------------------------------
+
+QTreeWidgetItem* SmartHomeConfig::createHouseItem(PropHouse* propHouse)
+{
     QTreeWidgetItem* houseItem = new QTreeWidgetItem(ObjectsTree);
     houseItem->setData(0, Qt::DisplayRole, propHouse->name);
     houseItem->setData(0, Qt::UserRole, House);
-    houseItem->setData(0, Qt::ToolTipRole, uuidHouse);
+    houseItem->setData(0, Qt::ToolTipRole, propHouse->id);
 
     //    Установить цвет фона/цвет текста/стиль текста
     //    houseItem->setData(0, Qt::BackgroundRole, QBrush(Qt::green));
     houseItem->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
 
-    propHouse->id = uuidHouse;
-    vectorHouse.append(propHouse);
-    qDebug() << "idHouse" << propHouse->id;
-    ObjectsTree->setCurrentItem(houseItem);
+    return houseItem;
 }
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::addRoom()
 {
-    PropRoom* propRoom = new PropRoom();
-    QString uuidRoom = QUuid::createUuid().toString();
-
     QTreeWidgetItem* houseItem = ObjectsTree->currentItem();
 
     if(houseItem == nullptr)
@@ -517,24 +508,31 @@ void SmartHomeConfig::addRoom()
         return;
     }
 
+    PropRoom* propRoom = new PropRoom();
+
+    propRoom->id = QUuid::createUuid().toString();
+    propRoom->idHouse = houseItem->data(0, Qt::ToolTipRole).toString();
+    vectorRoom.append(propRoom);
+
+    QTreeWidgetItem* roomItem = createRoomItem(propRoom, houseItem);
+
+    ObjectsTree->setCurrentItem(roomItem);
+}
+//------------------------------------------------------------------------------------
+
+QTreeWidgetItem* SmartHomeConfig::createRoomItem(PropRoom* propRoom, QTreeWidgetItem* houseItem)
+{
     QTreeWidgetItem* roomItem = new QTreeWidgetItem(houseItem);
     roomItem->setData(0, Qt::DisplayRole, propRoom->name);
     roomItem->setData(0, Qt::UserRole, Room);
-    roomItem->setData(0, Qt::ToolTipRole, uuidRoom);
+    roomItem->setData(0, Qt::ToolTipRole, propRoom->id);
 
-    qDebug() << "idHouse in Room" << houseItem->data(0, Qt::ToolTipRole).toString();
-    propRoom->id = uuidRoom;
-    propRoom->idHouse = houseItem->data(0, Qt::ToolTipRole).toString();
-    vectorRoom.append(propRoom);
-    ObjectsTree->setCurrentItem(roomItem);
+    return roomItem;
 }
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::addSensor()
 {
-    PropSensor* propSensor = new PropSensor();
-    QString uuidSensor = QUuid::createUuid().toString();
-
     QTreeWidgetItem* roomItem = ObjectsTree->currentItem();
 
     if(roomItem == nullptr)
@@ -549,15 +547,26 @@ void SmartHomeConfig::addSensor()
         return;
     }
 
+    PropSensor* propSensor = new PropSensor();
+
+    propSensor->id = QUuid::createUuid().toString();
+    propSensor->idRoom = roomItem->data(0, Qt::ToolTipRole).toString();
+    vectorSensor.append(propSensor);
+
+    QTreeWidgetItem* sensorItem = createSensorItem(propSensor, roomItem);
+
+    ObjectsTree->setCurrentItem(sensorItem);
+}
+//------------------------------------------------------------------------------------
+
+QTreeWidgetItem* SmartHomeConfig::createSensorItem(PropSensor* propSensor, QTreeWidgetItem* roomItem)
+{
     QTreeWidgetItem* sensorItem = new QTreeWidgetItem(roomItem);
     sensorItem->setData(0, Qt::DisplayRole, propSensor->name);
     sensorItem->setData(0, Qt::UserRole, Sensor);
-    sensorItem->setData(0, Qt::ToolTipRole, uuidSensor);
+    sensorItem->setData(0, Qt::ToolTipRole, propSensor->id);
 
-    propSensor->id = uuidSensor;
-    propSensor->idRoom = roomItem->data(0, Qt::ToolTipRole).toString();
-    vectorSensor.append(propSensor);
-    ObjectsTree->setCurrentItem(sensorItem);
+    return sensorItem;
 }
 //------------------------------------------------------------------------------------
 

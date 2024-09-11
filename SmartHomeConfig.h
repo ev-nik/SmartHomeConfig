@@ -125,6 +125,9 @@ private:
     void saveToFile();
     void load();
 
+    QTreeWidgetItem* createHouseItem(PropHouse* propHouse);
+    QTreeWidgetItem* createRoomItem(PropRoom* propRoom, QTreeWidgetItem* houseItem);
+    QTreeWidgetItem* createSensorItem(PropSensor* sensor, QTreeWidgetItem* roomItem);
 
 private slots:
     void connectToServer();
