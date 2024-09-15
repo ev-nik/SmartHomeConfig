@@ -110,14 +110,12 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::activButton);
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::showPassport);
-
-//    connect(socket,          &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
     connect(connectButton,   &QPushButton::clicked, this, &SmartHomeConfig::connectToServer);
+
     connect(socket, &QTcpSocket::readyRead, this, &SmartHomeConfig::readyRead);
     connect(socket, &QTcpSocket::stateChanged, this, &SmartHomeConfig::stateChangeSocket);
 
     connect(sendButton, &QPushButton::clicked, this, &SmartHomeConfig::send);
-
     connect(saveButton, &QPushButton::clicked, this, &SmartHomeConfig::saveToFile);
     connect(loadButton, &QPushButton::clicked, this, &SmartHomeConfig::load);
 
@@ -127,11 +125,13 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
 void SmartHomeConfig::saveToFile()
 {
-    QFile fileOut("E:/myHome.bin");
+    QString pathOut = QFileDialog::getSaveFileName(this, "Введите имя файла конфигурации", "E:/", "", nullptr, QFileDialog::DontUseNativeDialog);
 
-    if(QFile::exists("E:/myHome.bin"))
+    QFile fileOut(pathOut);
+
+    if(QFile::exists(pathOut))
     {
-        QFile::remove("E:/myHome.bin");
+        QFile::remove(pathOut);
     }
 
     if(!fileOut.open(QIODevice::WriteOnly))
@@ -174,10 +174,13 @@ void SmartHomeConfig::saveToFile()
 
 void SmartHomeConfig::load()
 {
+    clear();
+
     QString pathIn = QFileDialog::getOpenFileName(this, "Выберите файл конфигурации", "E:/", "*.bin", nullptr, QFileDialog::DontUseNativeDialog);
 
     if(pathIn.isEmpty())
     {
+        qWarning() << Q_FUNC_INFO << "File: " << pathIn << "empty";
         return;
     }
 
@@ -268,7 +271,7 @@ void SmartHomeConfig::load()
                     continue;
                 }
 
-                QTreeWidgetItem* sensorItem = createSensorItem(propSensor, roomItem);
+                createSensorItem(propSensor, roomItem);
             }
         }
     }
@@ -276,8 +279,30 @@ void SmartHomeConfig::load()
     ObjectsTree->expandAll();
     QTreeWidgetItem* houseItem = ObjectsTree->topLevelItem(0);
     ObjectsTree->setCurrentItem(houseItem);
+}
+//------------------------------------------------------------------------------------
 
-    QFile(pathIn).remove(); /////////TODO
+void SmartHomeConfig::clear()
+{
+    for(int i = 0; i < vectorHouse.count(); i++)
+    {
+        delete vectorHouse[i];
+    }
+    vectorHouse.clear();
+
+    for(int i = 0; i < vectorRoom.count(); i++)
+    {
+        delete vectorRoom[i];
+    }
+    vectorRoom.clear();
+
+    for(int i = 0; i < vectorSensor.count(); i++)
+    {
+        delete vectorSensor[i];
+    }
+    vectorSensor.clear();
+
+    ObjectsTree->clear();
 }
 //------------------------------------------------------------------------------------
 
