@@ -8,3 +8,6 @@ SOURCES += main.cpp\
 			
 HEADERS += SmartHomeConfig.h
 
+RESOURCES += \
+    resources/resources.qrc
+

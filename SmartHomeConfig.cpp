@@ -18,6 +18,8 @@
 #include <QTime>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QToolBar>
+#include <QAction>
 //------------------------------------------------------------------------------------
 
 enum HouseObject
@@ -30,6 +32,9 @@ enum HouseObject
 
 SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 {
+
+
+
     qApp->installEventFilter(this);
 
     { // Отображение окна по центру экрана
@@ -49,12 +54,14 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     QHeaderView* header = ObjectsTree->header();
     header->hide();
 
-    PassportTable = new QTableWidget();
+    PassportTable = new QTableWidget();//TODO  /this?/
     PassportTable->setColumnCount(2);
     PassportTable->verticalHeader()->setVisible(false);
     PassportTable->setHorizontalHeaderLabels({"Свойство", "Значение"});
     QHeaderView* headerView = PassportTable->horizontalHeader();
     headerView->setSectionResizeMode(QHeaderView::Stretch);
+
+
 
     addHouseButton = new QPushButton(this);
     addHouseButton->setText("Добавить дом");
@@ -97,9 +104,23 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     hLayout2->addWidget(ObjectsTree);
     hLayout2->addWidget(PassportTable);
 
+    QToolBar* toolBar = new QToolBar(this);
+
+    QAction* addAction = new QAction(this);
+    QAction* remooveAction = new QAction(this);
+    addAction    ->setIcon(QIcon(":/add.png"    ));
+    remooveAction->setIcon(QIcon(":/remoove.png"));
+    toolBar->addAction(addAction);
+    toolBar->addAction(remooveAction);
+    toolBar->setIconSize(QSize(20, 20));
+    toolBar->addSeparator();
+
     QVBoxLayout* vLayout = new QVBoxLayout(this);
+    vLayout->addWidget(toolBar);
     vLayout->addLayout(hLayout1);
     vLayout->addLayout(hLayout2);
+
+
 
     socket = new QTcpSocket(this);
 
