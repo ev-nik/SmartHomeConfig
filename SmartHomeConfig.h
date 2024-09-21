@@ -72,7 +72,7 @@ private:
     QAction* saveAction;
     QAction* loadAction;
     QAction* clearAction;
-    QAction* connectAction;
+//    QAction* connectAction;
     QAction* sendAction;
 
 public:

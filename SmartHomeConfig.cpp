@@ -101,10 +101,6 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     clearAction->setToolTip("Очистить");
     clearAction->setIcon(QIcon(":/clear.png"));
 
-    connectAction = new QAction(this);
-    connectAction->setToolTip("Подключить");
-    connectAction->setIcon(QIcon(":/connect.png"));
-
     sendAction = new QAction(this);
     sendAction->setToolTip("Отправить");
     sendAction->setIcon(QIcon(":/send.png"));
@@ -114,7 +110,6 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     toolBar->addAction(saveAction);
     toolBar->addAction(loadAction);
     toolBar->addAction(clearAction);
-    toolBar->addAction(connectAction);
     toolBar->addAction(sendAction);
     toolBar->setIconSize(QSize(20, 20));
     toolBar->addSeparator();
@@ -143,7 +138,6 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     connect(loadAction,      &QAction::triggered,              this, &SmartHomeConfig::load);
     connect(clearAction,     &QAction::triggered,              this, &SmartHomeConfig::clear);
     connect(removeAction,    &QAction::triggered,              this, &SmartHomeConfig::deleteItem);
-    connect(connectAction,   &QAction::triggered,              this, &SmartHomeConfig::connectToServer);
 }
 //------------------------------------------------------------------------------------
 
@@ -336,14 +330,7 @@ void SmartHomeConfig::stateChangeSocket(QAbstractSocket::SocketState socketState
     {
         case QTcpSocket::ConnectedState:
         {
-            connectAction->setEnabled(false);
-            sendAction->setEnabled(true);
-            break;
-        }
-        case QTcpSocket::UnconnectedState:
-        {
-            connectAction->setEnabled(true);
-            sendAction->setEnabled(false);
+            send();
             break;
         }
         default:
@@ -362,27 +349,33 @@ void SmartHomeConfig::connectToServer()
 
 void SmartHomeConfig::send()
 {
-    PropHouse* propHouse;
-    for(int i = 0; i < vectorHouse.count(); i++)
+    if(socket->state() != QTcpSocket::ConnectedState)
     {
-        propHouse = vectorHouse[i];
-        sendHousesToServer(propHouse);
+        connectToServer();
+        return;
     }
 
-    PropRoom* propRoom;
-    for(int i = 0; i < vectorRoom.count(); i++)
-    {
-        propRoom = vectorRoom[i];
-        sendRoomsToServer(propRoom);
-    }
+        PropHouse* propHouse;
+        for(int i = 0; i < vectorHouse.count(); i++)
+        {
+            propHouse = vectorHouse[i];
+            sendHousesToServer(propHouse);
+        }
 
-    PropSensor* propSensor;
-    for(int i = 0; i < vectorSensor.count(); i++)
-    {
-        propSensor = vectorSensor[i];
-        sendSensorsToServer(propSensor);
+        PropRoom* propRoom;
+        for(int i = 0; i < vectorRoom.count(); i++)
+        {
+            propRoom = vectorRoom[i];
+            sendRoomsToServer(propRoom);
+        }
+
+        PropSensor* propSensor;
+        for(int i = 0; i < vectorSensor.count(); i++)
+        {
+            propSensor = vectorSensor[i];
+            sendSensorsToServer(propSensor);
+        }
     }
-}
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::sendHousesToServer(PropHouse* propHouse)
