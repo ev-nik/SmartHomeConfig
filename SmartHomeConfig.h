@@ -66,11 +66,14 @@ private:
     QPushButton* addHouseButton;
     QPushButton* addRoomButton;
     QPushButton* addSensorButton;
-    QPushButton* deleteButton;
-    QPushButton* saveButton;
-    QPushButton* loadButton;
 
-
+    QAction* addAction;
+    QAction* removeAction;
+    QAction* saveAction;
+    QAction* loadAction;
+    QAction* clearAction;
+    QAction* connectAction;
+    QAction* sendAction;
 
 public:
     QVector<PropHouse*> vectorHouse;
@@ -108,14 +111,9 @@ protected:
     bool eventFilter(QObject* obj, QEvent* event);
 
 private:
-    QPushButton* connectButton;
-    QPushButton* sendButton;
-
     QTcpSocket* socket;
     QByteArray data;
     quint16 nextBlockSize;
-//    QString pathIn;
-//    QString pathOut;
 
     void sendToServer(QString str);
 
@@ -127,7 +125,6 @@ private:
     void saveToFile();
     void load();
     void clear();
-
 
     QTreeWidgetItem* createHouseItem(PropHouse* propHouse);
     QTreeWidgetItem* createRoomItem(PropRoom* propRoom, QTreeWidgetItem* houseItem);

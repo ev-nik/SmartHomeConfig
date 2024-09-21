@@ -1,7 +1,7 @@
 #include "SmartHomeConfig.h"
 //------------------------------------------------------------------------------------
 
-#include <QHeaderView>
+#include <QHeaderView> //
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDebug>
@@ -32,10 +32,9 @@ enum HouseObject
 
 SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 {
-
-
-
     qApp->installEventFilter(this);
+
+    nextBlockSize = 0;
 
     { // Отображение окна по центру экрана
         int width = 900;
@@ -54,14 +53,12 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     QHeaderView* header = ObjectsTree->header();
     header->hide();
 
-    PassportTable = new QTableWidget();//TODO  /this?/
+    PassportTable = new QTableWidget(this);
     PassportTable->setColumnCount(2);
     PassportTable->verticalHeader()->setVisible(false);
     PassportTable->setHorizontalHeaderLabels({"Свойство", "Значение"});
     QHeaderView* headerView = PassportTable->horizontalHeader();
     headerView->setSectionResizeMode(QHeaderView::Stretch);
-
-
 
     addHouseButton = new QPushButton(this);
     addHouseButton->setText("Добавить дом");
@@ -72,33 +69,11 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     addSensorButton = new QPushButton(this);
     addSensorButton->setText("Добавить датчик");
 
-    deleteButton = new QPushButton(this);
-    deleteButton->setText("Удалить");
-
-    connectButton = new QPushButton(this);
-    connectButton->setText("Connect");
-
-    sendButton = new QPushButton(this);
-    sendButton->setText("Send");
-
-    saveButton = new QPushButton(this);
-    saveButton->setText("Save");
-
-    loadButton = new QPushButton(this);
-    loadButton->setText("Load");
-
-    activButton(nullptr);
-
     QHBoxLayout* hLayout1 = new QHBoxLayout();
     hLayout1->addWidget(addHouseButton);
     hLayout1->addWidget(addRoomButton);
     hLayout1->addWidget(addSensorButton);
-    hLayout1->addWidget(deleteButton);
     hLayout1->addStretch();
-    hLayout1->addWidget(connectButton);
-    hLayout1->addWidget(sendButton);
-    hLayout1->addWidget(saveButton);
-    hLayout1->addWidget(loadButton);
 
     QHBoxLayout* hLayout2 = new QHBoxLayout();
     hLayout2->addWidget(ObjectsTree);
@@ -106,12 +81,41 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
     QToolBar* toolBar = new QToolBar(this);
 
-    QAction* addAction = new QAction(this);
-    QAction* remooveAction = new QAction(this);
-    addAction    ->setIcon(QIcon(":/add.png"    ));
-    remooveAction->setIcon(QIcon(":/remoove.png"));
+    addAction = new QAction(this);
+    addAction->setToolTip("Добавить");
+    addAction->setIcon(QIcon(":/add.png"    ));
+
+    removeAction = new QAction(this);
+    removeAction->setToolTip("Удалить");
+    removeAction->setIcon(QIcon(":/remoove.png"));
+
+    saveAction = new QAction(this);
+    saveAction->setToolTip("Сохранить");
+    saveAction->setIcon(QIcon(":/save.png"));
+
+    loadAction = new QAction(this);
+    loadAction->setToolTip("Загрузить");
+    loadAction->setIcon(QIcon(":/load.png"));
+
+    clearAction = new QAction(this);
+    clearAction->setToolTip("Очистить");
+    clearAction->setIcon(QIcon(":/clear.png"));
+
+    connectAction = new QAction(this);
+    connectAction->setToolTip("Подключить");
+    connectAction->setIcon(QIcon(":/connect.png"));
+
+    sendAction = new QAction(this);
+    sendAction->setToolTip("Отправить");
+    sendAction->setIcon(QIcon(":/send.png"));
+
     toolBar->addAction(addAction);
-    toolBar->addAction(remooveAction);
+    toolBar->addAction(removeAction);
+    toolBar->addAction(saveAction);
+    toolBar->addAction(loadAction);
+    toolBar->addAction(clearAction);
+    toolBar->addAction(connectAction);
+    toolBar->addAction(sendAction);
     toolBar->setIconSize(QSize(20, 20));
     toolBar->addSeparator();
 
@@ -120,27 +124,26 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     vLayout->addLayout(hLayout1);
     vLayout->addLayout(hLayout2);
 
-
-
     socket = new QTcpSocket(this);
 
-    connect(addHouseButton,  &QPushButton::clicked,     this, &SmartHomeConfig::addHouse);
-    connect(addRoomButton,   &QPushButton::clicked,     this, &SmartHomeConfig::addRoom);
-    connect(addSensorButton, &QPushButton::clicked,     this, &SmartHomeConfig::addSensor);
-    connect(deleteButton,    &QPushButton::clicked,     this, &SmartHomeConfig::deleteItem);
+    activButton(nullptr);
+
+    connect(addHouseButton,  &QPushButton::clicked,            this, &SmartHomeConfig::addHouse);
+    connect(addRoomButton,   &QPushButton::clicked,            this, &SmartHomeConfig::addRoom);
+    connect(addSensorButton, &QPushButton::clicked,            this, &SmartHomeConfig::addSensor);
 
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::activButton);
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::showPassport);
-    connect(connectButton,   &QPushButton::clicked, this, &SmartHomeConfig::connectToServer);
 
-    connect(socket, &QTcpSocket::readyRead, this, &SmartHomeConfig::readyRead);
-    connect(socket, &QTcpSocket::stateChanged, this, &SmartHomeConfig::stateChangeSocket);
+    connect(socket,          &QTcpSocket::readyRead,           this, &SmartHomeConfig::readyRead);
+    connect(socket,          &QTcpSocket::stateChanged,        this, &SmartHomeConfig::stateChangeSocket);
 
-    connect(sendButton, &QPushButton::clicked, this, &SmartHomeConfig::send);
-    connect(saveButton, &QPushButton::clicked, this, &SmartHomeConfig::saveToFile);
-    connect(loadButton, &QPushButton::clicked, this, &SmartHomeConfig::load);
-
-    nextBlockSize = 0;
+    connect(sendAction,      &QAction::triggered,              this, &SmartHomeConfig::send);
+    connect(saveAction,      &QAction::triggered,              this, &SmartHomeConfig::saveToFile);
+    connect(loadAction,      &QAction::triggered,              this, &SmartHomeConfig::load);
+    connect(clearAction,     &QAction::triggered,              this, &SmartHomeConfig::clear);
+    connect(removeAction,    &QAction::triggered,              this, &SmartHomeConfig::deleteItem);
+    connect(connectAction,   &QAction::triggered,              this, &SmartHomeConfig::connectToServer);
 }
 //------------------------------------------------------------------------------------
 
@@ -333,14 +336,14 @@ void SmartHomeConfig::stateChangeSocket(QAbstractSocket::SocketState socketState
     {
         case QTcpSocket::ConnectedState:
         {
-            connectButton->setEnabled(false);
-            sendButton->setEnabled(true);
+            connectAction->setEnabled(false);
+            sendAction->setEnabled(true);
             break;
         }
         case QTcpSocket::UnconnectedState:
         {
-            connectButton->setEnabled(true);
-            sendButton->setEnabled(false);
+            connectAction->setEnabled(true);
+            sendAction->setEnabled(false);
             break;
         }
         default:
@@ -471,7 +474,7 @@ bool SmartHomeConfig::eventFilter(QObject* obj, QEvent* event)
 
             if(keyEvent->key() == Qt::Key_Delete)
             {
-                if(deleteButton->isEnabled())
+                if(removeAction->isEnabled())
                 {
                     deleteItem();
                     return false;
@@ -1100,16 +1103,16 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item)
 {
     addRoomButton  ->setEnabled(false);
     addSensorButton->setEnabled(false);
-    deleteButton   ->setEnabled(false);
-    saveButton     ->setEnabled(false);
+    removeAction->setEnabled(false);
+    saveAction->setEnabled(false);
 
     if(item == nullptr)
     {
         return;
     }
 
-    deleteButton->setEnabled(true);
-    saveButton  ->setEnabled(true);
+    removeAction->setEnabled(true);
+    saveAction->setEnabled(true);
 
     int itemType = item->data(0, Qt::UserRole).toInt();
 

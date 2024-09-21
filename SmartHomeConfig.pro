@@ -11,3 +11,5 @@ HEADERS += SmartHomeConfig.h
 RESOURCES += \
     resources/resources.qrc
 
+DISTFILES +=
+
