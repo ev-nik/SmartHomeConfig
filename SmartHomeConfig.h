@@ -8,6 +8,9 @@
 #include <QTableWidget>
 #include <QComboBox>
 #include <QTcpSocket>
+#include <QToolButton>
+#include <QMenu>
+
 //------------------------------------------------------------------------------------
 struct PropHouse
 {
@@ -63,17 +66,21 @@ private:
     QTreeWidget*  ObjectsTree;
     QTableWidget* PassportTable;
 
-    QPushButton* addHouseButton;
-    QPushButton* addRoomButton;
-    QPushButton* addSensorButton;
+//    QPushButton* addHouseButton;
+//    QPushButton* addRoomButton;
+//    QPushButton* addSensorButton;
+//    QToolButton* addButton;
 
-    QAction* addAction;
+    QAction* addActionHouse;
+    QAction* addActionRoom;
+    QAction* addActionSensor;
     QAction* removeAction;
     QAction* saveAction;
     QAction* loadAction;
     QAction* clearAction;
-//    QAction* connectAction;
     QAction* sendAction;
+
+    QMenu* contextMenu;
 
 public:
     QVector<PropHouse*> vectorHouse;
@@ -114,6 +121,8 @@ private:
     QTcpSocket* socket;
     QByteArray data;
     quint16 nextBlockSize;
+
+    void showContextMenu(const QPoint& pos);
 
     void sendToServer(QString str);
 

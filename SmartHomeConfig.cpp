@@ -60,30 +60,31 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     QHeaderView* headerView = PassportTable->horizontalHeader();
     headerView->setSectionResizeMode(QHeaderView::Stretch);
 
-    addHouseButton = new QPushButton(this);
-    addHouseButton->setText("Добавить дом");
-
-    addRoomButton = new QPushButton(this);
-    addRoomButton->setText("Добавить комнату");
-
-    addSensorButton = new QPushButton(this);
-    addSensorButton->setText("Добавить датчик");
-
-    QHBoxLayout* hLayout1 = new QHBoxLayout();
-    hLayout1->addWidget(addHouseButton);
-    hLayout1->addWidget(addRoomButton);
-    hLayout1->addWidget(addSensorButton);
-    hLayout1->addStretch();
-
     QHBoxLayout* hLayout2 = new QHBoxLayout();
     hLayout2->addWidget(ObjectsTree);
     hLayout2->addWidget(PassportTable);
 
     QToolBar* toolBar = new QToolBar(this);
 
-    addAction = new QAction(this);
-    addAction->setToolTip("Добавить");
-    addAction->setIcon(QIcon(":/add.png"    ));
+    addActionHouse = new QAction(this);
+    addActionHouse->setText("Добавить дом");
+    addActionHouse->setIcon(QIcon(":/add.png"));
+    addActionHouse->setToolTip("Добавить");
+
+    addActionRoom = new QAction(this);
+    addActionRoom->setText("Добавить комнату");
+    addActionRoom->setIcon(QIcon(":/add.png"));
+    addActionRoom->setToolTip("Добавить");
+
+    addActionSensor = new QAction(this);
+    addActionSensor->setText("Добавить датчик");
+    addActionSensor->setIcon(QIcon(":/add.png"));
+    addActionSensor->setToolTip("Добавить");
+
+    QMenu* addMenu = new QMenu(this);
+    addMenu->addAction(addActionHouse);
+    addMenu->addAction(addActionRoom);
+    addMenu->addAction(addActionSensor);
 
     removeAction = new QAction(this);
     removeAction->setToolTip("Удалить");
@@ -105,7 +106,13 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     sendAction->setToolTip("Отправить");
     sendAction->setIcon(QIcon(":/send.png"));
 
-    toolBar->addAction(addAction);
+    QToolButton* addButton = new QToolButton(this);
+    addButton->setPopupMode(QToolButton::InstantPopup);
+    addButton->setToolTip("Добавить");
+    addButton->setIcon(QIcon(":/add.png"));
+    addButton->setMenu(addMenu);
+
+    toolBar->addWidget(addButton);
     toolBar->addAction(removeAction);
     toolBar->addAction(saveAction);
     toolBar->addAction(loadAction);
@@ -114,18 +121,25 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     toolBar->setIconSize(QSize(20, 20));
     toolBar->addSeparator();
 
+    contextMenu = new QMenu(this);
+    contextMenu->addAction(addActionHouse);
+    contextMenu->addAction(addActionRoom);
+    contextMenu->addAction(addActionSensor);
+
     QVBoxLayout* vLayout = new QVBoxLayout(this);
     vLayout->addWidget(toolBar);
-    vLayout->addLayout(hLayout1);
     vLayout->addLayout(hLayout2);
 
     socket = new QTcpSocket(this);
 
     activButton(nullptr);
 
-    connect(addHouseButton,  &QPushButton::clicked,            this, &SmartHomeConfig::addHouse);
-    connect(addRoomButton,   &QPushButton::clicked,            this, &SmartHomeConfig::addRoom);
-    connect(addSensorButton, &QPushButton::clicked,            this, &SmartHomeConfig::addSensor);
+    ObjectsTree->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ObjectsTree, &QWidget::customContextMenuRequested, this, &SmartHomeConfig::showContextMenu);
+
+    connect(addActionHouse,  &QAction::triggered,              this, &SmartHomeConfig::addHouse);
+    connect(addActionRoom,   &QAction::triggered,              this, &SmartHomeConfig::addRoom);
+    connect(addActionSensor, &QAction::triggered,              this, &SmartHomeConfig::addSensor);
 
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::activButton);
     connect(ObjectsTree,     &QTreeWidget::currentItemChanged, this, &SmartHomeConfig::showPassport);
@@ -138,6 +152,12 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     connect(loadAction,      &QAction::triggered,              this, &SmartHomeConfig::load);
     connect(clearAction,     &QAction::triggered,              this, &SmartHomeConfig::clear);
     connect(removeAction,    &QAction::triggered,              this, &SmartHomeConfig::deleteItem);
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::showContextMenu(const QPoint& pos)
+{
+    contextMenu->popup(mapToGlobal(pos));
 }
 //------------------------------------------------------------------------------------
 
@@ -1094,8 +1114,11 @@ void SmartHomeConfig::deleteItem()
 
 void SmartHomeConfig::activButton(QTreeWidgetItem *item)
 {
-    addRoomButton  ->setEnabled(false);
-    addSensorButton->setEnabled(false);
+//    addRoomButton  ->setEnabled(false);
+//    addSensorButton->setEnabled(false);
+    addActionRoom->setEnabled(false);
+    addActionSensor->setEnabled(false);
+
     removeAction->setEnabled(false);
     saveAction->setEnabled(false);
 
@@ -1113,12 +1136,15 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item)
     {
         case House:
         {
-            addRoomButton  ->setEnabled(true);
+//            addRoomButton  ->setEnabled(true);
+            addActionRoom->setEnabled(true);
+
             break;
         }
         case Room:
         {
-            addSensorButton->setEnabled(true);
+//            addSensorButton->setEnabled(true);
+            addActionSensor->setEnabled(true);
             break;
         }
         default: break;
