@@ -114,6 +114,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
     toolBar->addWidget(addButton);
     toolBar->addAction(removeAction);
+    toolBar->addSeparator();
     toolBar->addAction(saveAction);
     toolBar->addAction(loadAction);
     toolBar->addAction(clearAction);

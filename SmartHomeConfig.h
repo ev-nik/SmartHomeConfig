@@ -66,11 +66,6 @@ private:
     QTreeWidget*  ObjectsTree;
     QTableWidget* PassportTable;
 
-//    QPushButton* addHouseButton;
-//    QPushButton* addRoomButton;
-//    QPushButton* addSensorButton;
-//    QToolButton* addButton;
-
     QAction* addActionHouse;
     QAction* addActionRoom;
     QAction* addActionSensor;
