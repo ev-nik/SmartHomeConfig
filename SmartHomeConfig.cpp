@@ -213,13 +213,10 @@ void SmartHomeConfig::saveToFile()
 
 void SmartHomeConfig::load()
 {
-    clear();
-
     QString pathIn = QFileDialog::getOpenFileName(this, "Выберите файл конфигурации", "E:/", "*.bin", nullptr, QFileDialog::DontUseNativeDialog);
 
     if(pathIn.isEmpty())
     {
-        qWarning() << Q_FUNC_INFO << "File: " << pathIn << "empty";
         return;
     }
 
@@ -234,6 +231,8 @@ void SmartHomeConfig::load()
                              QMessageBox::Close);
         return;
     }
+
+    clear();
 
     QDataStream dataStream(&fileIn);
 
@@ -376,27 +375,27 @@ void SmartHomeConfig::send()
         return;
     }
 
-        PropHouse* propHouse;
-        for(int i = 0; i < vectorHouse.count(); i++)
-        {
-            propHouse = vectorHouse[i];
-            sendHousesToServer(propHouse);
-        }
-
-        PropRoom* propRoom;
-        for(int i = 0; i < vectorRoom.count(); i++)
-        {
-            propRoom = vectorRoom[i];
-            sendRoomsToServer(propRoom);
-        }
-
-        PropSensor* propSensor;
-        for(int i = 0; i < vectorSensor.count(); i++)
-        {
-            propSensor = vectorSensor[i];
-            sendSensorsToServer(propSensor);
-        }
+    PropHouse* propHouse;
+    for(int i = 0; i < vectorHouse.count(); i++)
+    {
+        propHouse = vectorHouse[i];
+        sendHousesToServer(propHouse);
     }
+
+    PropRoom* propRoom;
+    for(int i = 0; i < vectorRoom.count(); i++)
+    {
+        propRoom = vectorRoom[i];
+        sendRoomsToServer(propRoom);
+    }
+
+    PropSensor* propSensor;
+    for(int i = 0; i < vectorSensor.count(); i++)
+    {
+        propSensor = vectorSensor[i];
+        sendSensorsToServer(propSensor);
+    }
+}
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::sendHousesToServer(PropHouse* propHouse)
