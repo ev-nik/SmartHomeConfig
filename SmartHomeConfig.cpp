@@ -22,6 +22,10 @@
 #include <QAction>
 //------------------------------------------------------------------------------------
 
+#define EXT_SCH ".shc"
+
+//------------------------------------------------------------------------------------
+
 enum HouseObject
 {
     House  = 1,
@@ -164,7 +168,20 @@ void SmartHomeConfig::showContextMenu(const QPoint& pos)
 
 void SmartHomeConfig::saveToFile()
 {
-    QString pathOut = QFileDialog::getSaveFileName(this, "Введите имя файла конфигурации", "E:/", "", nullptr, QFileDialog::DontUseNativeDialog);
+    QString pathOut = QFileDialog::getSaveFileName(this,
+                                                   "Введите имя файла конфигурации",
+                                                   "E:/Настройки",
+                                                   QString("*%1").arg(EXT_SCH));
+
+    if(pathOut.isEmpty())
+    {
+        return;
+    }
+
+    if(!pathOut.endsWith(EXT_SCH))
+    {
+        pathOut += EXT_SCH;
+    }
 
     QFile fileOut(pathOut);
 
@@ -175,7 +192,6 @@ void SmartHomeConfig::saveToFile()
 
     if(!fileOut.open(QIODevice::WriteOnly))
     {
-        qWarning() << Q_FUNC_INFO << "E:/myHome.bin" << "not open";
         return;
     }
 
@@ -213,7 +229,10 @@ void SmartHomeConfig::saveToFile()
 
 void SmartHomeConfig::load()
 {
-    QString pathIn = QFileDialog::getOpenFileName(this, "Выберите файл конфигурации", "E:/", "*.bin", nullptr, QFileDialog::DontUseNativeDialog);
+    QString pathIn = QFileDialog::getOpenFileName(this,
+                                                  "Выберите файл конфигурации",
+                                                  "E:/",
+                                                  QString("*%1").arg(EXT_SCH));
 
     if(pathIn.isEmpty())
     {
