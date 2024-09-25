@@ -23,7 +23,6 @@
 //------------------------------------------------------------------------------------
 
 #define EXT_SCH ".shc"
-
 //------------------------------------------------------------------------------------
 
 enum HouseObject
@@ -93,6 +92,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     removeAction = new QAction(this);
     removeAction->setToolTip("Удалить");
     removeAction->setIcon(QIcon(":/remoove.png"));
+    removeAction->setText("Удалить");
 
     saveAction = new QAction(this);
     saveAction->setToolTip("Сохранить");
@@ -130,6 +130,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     contextMenu->addAction(addActionHouse);
     contextMenu->addAction(addActionRoom);
     contextMenu->addAction(addActionSensor);
+    contextMenu->addAction(removeAction);
 
     QVBoxLayout* vLayout = new QVBoxLayout(this);
     vLayout->addWidget(toolBar);
