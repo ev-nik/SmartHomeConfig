@@ -20,6 +20,7 @@
 #include <QMessageBox>
 #include <QToolBar>
 #include <QAction>
+#include <QMessageBox>
 //------------------------------------------------------------------------------------
 
 #define EXT_SCH ".shc"
@@ -37,6 +38,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 {
     qApp->installEventFilter(this);
 
+    isRequestSend = false;
     nextBlockSize = 0;
 
     { // Отображение окна по центру экрана
@@ -63,11 +65,9 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     QHeaderView* headerView = PassportTable->horizontalHeader();
     headerView->setSectionResizeMode(QHeaderView::Stretch);
 
-    QHBoxLayout* hLayout2 = new QHBoxLayout();
-    hLayout2->addWidget(ObjectsTree);
-    hLayout2->addWidget(PassportTable);
-
-    QToolBar* toolBar = new QToolBar(this);
+    QHBoxLayout* hLayout1 = new QHBoxLayout();
+    hLayout1->addWidget(ObjectsTree);
+    hLayout1->addWidget(PassportTable);
 
     addActionHouse = new QAction(this);
     addActionHouse->setText("Добавить дом");
@@ -116,6 +116,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     addButton->setIcon(QIcon(":/add.png"));
     addButton->setMenu(addMenu);
 
+    QToolBar* toolBar = new QToolBar(this);
     toolBar->addWidget(addButton);
     toolBar->addAction(removeAction);
     toolBar->addSeparator();
@@ -134,7 +135,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 
     QVBoxLayout* vLayout = new QVBoxLayout(this);
     vLayout->addWidget(toolBar);
-    vLayout->addLayout(hLayout2);
+    vLayout->addLayout(hLayout1);
 
     socket = new QTcpSocket(this);
 
@@ -159,6 +160,16 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     connect(clearAction,     &QAction::triggered,              this, &SmartHomeConfig::clear);
     connect(removeAction,    &QAction::triggered,              this, &SmartHomeConfig::deleteItem);
 }
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::messageOfUnconectedToServer()
+{
+    QMessageBox::warning(this,
+                         "Предупреждение!",
+                         QString("Подключение к серверу не установлено"),
+                         QMessageBox::Close);
+}
+
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::showContextMenu(const QPoint& pos)
@@ -373,6 +384,14 @@ void SmartHomeConfig::stateChangeSocket(QAbstractSocket::SocketState socketState
             send();
             break;
         }
+        case QTcpSocket::UnconnectedState:
+        {
+            if(isRequestSend)
+            {
+                messageOfUnconectedToServer();
+            }
+            break;
+        }
         default:
         {
             break;
@@ -389,6 +408,10 @@ void SmartHomeConfig::connectToServer()
 
 void SmartHomeConfig::send()
 {
+    isRequestSend = true; // устанавливаем признак что нужно отправить данные.
+                          // Если вдруг к серверу не удастся подключиться, то тогда будет выдана ошибка.
+                          // см. stateChangeSocket() case QTcpSocket::UnconnectedState:
+
     if(socket->state() != QTcpSocket::ConnectedState)
     {
         connectToServer();
@@ -415,6 +438,10 @@ void SmartHomeConfig::send()
         propSensor = vectorSensor[i];
         sendSensorsToServer(propSensor);
     }
+
+    isRequestSend = false; // снимаем признак на отправку данных, т.к. они успешно отправлены,
+                           // чтобы не выдавать ошибку в см. stateChangeSocket() case QTcpSocket::UnconnectedState:
+                           // если вдруг сервер отключился.
 }
 //------------------------------------------------------------------------------------
 
@@ -1134,8 +1161,6 @@ void SmartHomeConfig::deleteItem()
 
 void SmartHomeConfig::activButton(QTreeWidgetItem *item)
 {
-//    addRoomButton  ->setEnabled(false);
-//    addSensorButton->setEnabled(false);
     addActionRoom->setEnabled(false);
     addActionSensor->setEnabled(false);
 
@@ -1156,14 +1181,11 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item)
     {
         case House:
         {
-//            addRoomButton  ->setEnabled(true);
             addActionRoom->setEnabled(true);
-
             break;
         }
         case Room:
         {
-//            addSensorButton->setEnabled(true);
             addActionSensor->setEnabled(true);
             break;
         }

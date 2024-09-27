@@ -117,6 +117,8 @@ private:
     QByteArray data;
     quint16 nextBlockSize;
 
+    bool isRequestSend;// запрос на отправку
+
     void showContextMenu(const QPoint& pos);
 
     void sendToServer(QString str);
@@ -129,6 +131,7 @@ private:
     void saveToFile();
     void load();
     void clear();
+    void messageOfUnconectedToServer();
 
     QTreeWidgetItem* createHouseItem(PropHouse* propHouse);
     QTreeWidgetItem* createRoomItem(PropRoom* propRoom, QTreeWidgetItem* houseItem);
