@@ -21,6 +21,7 @@
 #include <QToolBar>
 #include <QAction>
 #include <QMessageBox>
+#include <QDesktopServices>
 //------------------------------------------------------------------------------------
 
 #define EXT_SCH ".shc"
@@ -182,7 +183,7 @@ void SmartHomeConfig::saveToFile()
 {
     QString pathOut = QFileDialog::getSaveFileName(this,
                                                    "Введите имя файла конфигурации",
-                                                   "E:/Настройки",
+                                                   QStandardPaths::writableLocation(QStandardPaths::DesktopLocation),
                                                    QString("*%1").arg(EXT_SCH));
 
     if(pathOut.isEmpty())
@@ -243,7 +244,7 @@ void SmartHomeConfig::load()
 {
     QString pathIn = QFileDialog::getOpenFileName(this,
                                                   "Выберите файл конфигурации",
-                                                  "E:/",
+                                                  QStandardPaths::writableLocation(QStandardPaths::DesktopLocation),
                                                   QString("*%1").arg(EXT_SCH));
 
     if(pathIn.isEmpty())
