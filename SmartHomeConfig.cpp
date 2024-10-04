@@ -1,12 +1,11 @@
 #include "SmartHomeConfig.h"
 //------------------------------------------------------------------------------------
 
-#include <QHeaderView> //
+#include <QHeaderView>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QLineEdit>
-#include <QFrame>
 #include <QUuid>
 #include <QComboBox>
 #include <QSpinBox>
@@ -14,14 +13,12 @@
 #include <QDesktopWidget>
 #include <QEvent>
 #include <QKeyEvent>
-#include <QThread>
-#include <QTime>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QToolBar>
 #include <QAction>
-#include <QMessageBox>
 #include <QDesktopServices>
+#include <QFileInfo>
 //------------------------------------------------------------------------------------
 
 #define EXT_SCH ".shc"
@@ -53,6 +50,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
         setGeometry(x, y, width, height);
     }
 
+    this->setWindowTitle("Конфигуратор умного дома");
     ObjectsTree = new QTreeWidget(this);
     ObjectsTree->setSelectionMode(QAbstractItemView::SingleSelection);
 
@@ -166,7 +164,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 void SmartHomeConfig::messageOfUnconectedToServer()
 {
     QMessageBox::warning(this,
-                         "Предупреждение!",
+                         "Предупреждение",
                          QString("Подключение к серверу не установлено"),
                          QMessageBox::Close);
 }
@@ -183,7 +181,7 @@ void SmartHomeConfig::saveToFile()
 {
     QString pathOut = QFileDialog::getSaveFileName(this,
                                                    "Введите имя файла конфигурации",
-                                                   QStandardPaths::writableLocation(QStandardPaths::DesktopLocation),
+                                                   QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/" + "Конфигурация умного дома",
                                                    QString("*%1").arg(EXT_SCH));
 
     if(pathOut.isEmpty())
@@ -1123,6 +1121,21 @@ PropSensor* SmartHomeConfig::findObjectSensor(QString id)
 
 void SmartHomeConfig::deleteItem()
 {
+    if(QMessageBox::question(this,
+                         "Удаляем?",
+                         QString("Вы действительно хотите удалить?"),
+                         QMessageBox::No,
+                         QMessageBox::Yes) == QMessageBox::No)
+    {
+        return;
+    }
+
+//    QMessageBox::question(this,
+//                             "Удаляем?",
+//                             QString("Вы действительно хотите удалить?"),
+//                             QMessageBox::No,
+//                             QMessageBox::Yes);
+
     QTreeWidgetItem* item = ObjectsTree->currentItem();
 
     if(item == nullptr)
