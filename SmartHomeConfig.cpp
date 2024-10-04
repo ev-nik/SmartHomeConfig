@@ -1121,20 +1121,16 @@ PropSensor* SmartHomeConfig::findObjectSensor(QString id)
 
 void SmartHomeConfig::deleteItem()
 {
-    if(QMessageBox::question(this,
-                         "Удаляем?",
-                         QString("Вы действительно хотите удалить?"),
-                         QMessageBox::No,
-                         QMessageBox::Yes) == QMessageBox::No)
+    QMessageBox::StandardButton msBox = QMessageBox::question(this,
+                                                            "Удаление",
+                                                            QString("Вы действительно хотите удалить?"),
+                                                            QMessageBox::Yes | QMessageBox::No,
+                                                            QMessageBox::No);
+
+    if(msBox == QMessageBox::No)
     {
         return;
     }
-
-//    QMessageBox::question(this,
-//                             "Удаляем?",
-//                             QString("Вы действительно хотите удалить?"),
-//                             QMessageBox::No,
-//                             QMessageBox::Yes);
 
     QTreeWidgetItem* item = ObjectsTree->currentItem();
 
