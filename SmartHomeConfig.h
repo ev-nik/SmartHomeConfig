@@ -10,6 +10,8 @@
 #include <QTcpSocket>
 #include <QToolButton>
 #include <QMenu>
+#include <QFile>
+#include <QDataStream>
 
 //------------------------------------------------------------------------------------
 struct PropHouse
@@ -22,6 +24,9 @@ struct PropHouse
     {
         name = "Дом";
     }
+
+    friend QDataStream& operator << (QDataStream& out, const PropHouse& propHouse);
+    friend QDataStream& operator >> (QDataStream& in,        PropHouse& propHouse);
 };
 //------------------------------------------------------------------------------------
 
@@ -39,6 +44,9 @@ struct PropRoom
         square = 0;
         countWindow = 0;
     }
+
+    friend QDataStream& operator << (QDataStream& out, const PropRoom& propRoom);
+    friend QDataStream& operator >> (QDataStream& in,        PropRoom& propRoom);
 };
 //------------------------------------------------------------------------------------
 
@@ -54,6 +62,10 @@ struct PropSensor
         name = "Датчик";
         typeSensor = 0;
     }
+
+    friend QDataStream& operator << (QDataStream& out, const PropSensor& propSensor);
+    friend QDataStream& operator >> (QDataStream& in,        PropSensor& propSensor);
+
 };
 //------------------------------------------------------------------------------------
 

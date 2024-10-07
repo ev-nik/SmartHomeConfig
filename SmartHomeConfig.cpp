@@ -168,7 +168,6 @@ void SmartHomeConfig::messageOfUnconectedToServer()
                          QString("Подключение к серверу не установлено"),
                          QMessageBox::Close);
 }
-
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::showContextMenu(const QPoint& pos)
@@ -206,32 +205,20 @@ void SmartHomeConfig::saveToFile()
         return;
     }
 
-    QDataStream dataStream(&fileOut);
+    QDataStream out(&fileOut);
     for(PropHouse* propHouse : vectorHouse)
     {
-        dataStream << quint8(House)
-                   << propHouse->name
-                   << propHouse->address
-                   << propHouse->id;
+        out << *propHouse;
     }
 
     for(PropRoom* propRoom : vectorRoom)
     {
-        dataStream << quint8(Room)
-                   << propRoom->name
-                   << propRoom->square
-                   << propRoom->countWindow
-                   << propRoom->id
-                   << propRoom->idHouse;
+        out << *propRoom;
     }
 
     for(PropSensor* propSensor : vectorSensor)
     {
-        dataStream << quint8(Sensor)
-                   << propSensor->name
-                   << propSensor->typeSensor
-                   << propSensor->id
-                   << propSensor->idRoom;
+        out << *propSensor;
     }
 
     fileOut.close();
@@ -264,42 +251,33 @@ void SmartHomeConfig::load()
 
     clear();
 
-    QDataStream dataStream(&fileIn);
+    QDataStream in(&fileIn);
 
-    while( dataStream.atEnd() == false )
+    while( in.atEnd() == false )
     {
         quint8 typeObject;
-        dataStream >> typeObject;
+        in >> typeObject;
 
         switch (typeObject)
         {
             case House:
             {
                 PropHouse*    propHouse  = new PropHouse();
-                dataStream >> propHouse->name
-                           >> propHouse->address
-                           >> propHouse->id;
+                in >> *propHouse;
                 vectorHouse.append(propHouse);
                 break;
             }
             case Room:
             {
                 PropRoom*     propRoom   = new PropRoom();
-                dataStream >> propRoom->name
-                           >> propRoom->square
-                           >> propRoom->countWindow
-                           >> propRoom->id
-                           >> propRoom->idHouse;
+                in >> *propRoom;
                 vectorRoom.append(propRoom);
                 break;
             }
             case Sensor:
             {
                 PropSensor*   propSensor = new PropSensor();
-                dataStream >> propSensor->name
-                           >> propSensor->typeSensor
-                           >> propSensor->id
-                           >> propSensor->idRoom;
+                in >> *propSensor;
                 vectorSensor.append(propSensor);
                 break;
             }
@@ -449,12 +427,9 @@ void SmartHomeConfig::sendHousesToServer(PropHouse* propHouse)
     data.clear();
     QDataStream out(&data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_15);
-    out << quint16(0) << House << propHouse->name << propHouse->address << propHouse->id;
-    qDebug() << propHouse->name << propHouse->address << propHouse->id;
+    out << quint16(0) << *propHouse;
     out.device()->seek(0);
     out << quint16(data.size() - sizeof(quint16));
-    quint16 qint16 = quint16(data.size() - sizeof(quint16));
-    qDebug() << qint16;
     socket->write(data);
 }
 //------------------------------------------------------------------------------------
@@ -464,8 +439,7 @@ void SmartHomeConfig::sendRoomsToServer(PropRoom* propRoom)
     data.clear();
     QDataStream out(&data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_15);
-    out << quint16(0) << Room << propRoom->name << propRoom->square << propRoom->countWindow << propRoom->id;
-    qDebug() << propRoom->name << propRoom->square << propRoom->countWindow << propRoom->id;
+    out << quint16(0) << *propRoom;
     out.device()->seek(0);
     out << quint16(data.size() - sizeof(quint16));
     socket->write(data);
@@ -477,8 +451,7 @@ void SmartHomeConfig::sendSensorsToServer(PropSensor* propSensor)
     data.clear();
     QDataStream out(&data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_15);
-    out << quint16(0) << Sensor << propSensor->name << propSensor->typeSensor << propSensor->id;
-    qDebug() << propSensor->name << propSensor->typeSensor << propSensor->id;
+    out << quint16(0) << *propSensor;
     out.device()->seek(0);
     out << quint16(data.size() - sizeof(quint16));
     socket->write(data);
@@ -835,7 +808,7 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 
             if(properties == nullptr)
             {
-//                // 0 строка 1 ячейка          Датчик
+                // 0 строка 1 ячейка          Датчик
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
                 // 1 строка 1 ячейка          Тип датчика
@@ -1225,7 +1198,6 @@ void SmartHomeConfig::deleteHouse(QTreeWidgetItem* item)
     {
         qWarning() << Q_FUNC_INFO << house << "The element is not found";
     }
-
 }
 //------------------------------------------------------------------------------------
 
@@ -1270,3 +1242,70 @@ void SmartHomeConfig::deleteSensor(QTreeWidgetItem* item)
         qWarning() << Q_FUNC_INFO << idSensor << "The element in the vectorHouse not found";
     }
 }
+//------------------------------------------------------------------------------------
+
+QDataStream& operator >> (QDataStream& in,  PropHouse& propHouse)
+{
+    in >> propHouse.name
+       >> propHouse.address
+       >> propHouse.id;
+
+    return in;
+}
+
+QDataStream& operator << (QDataStream& out, const PropHouse& propHouse)
+{
+    out << quint8(House)
+        << propHouse.name
+        << propHouse.address
+        << propHouse.id;
+
+    return out;
+}
+//------------------------------------------------------------------------------------
+
+QDataStream& operator >> (QDataStream& in,        PropRoom& propRoom)
+{
+    in >> propRoom.name
+       >> propRoom.square
+       >> propRoom.countWindow
+       >> propRoom.id
+       >> propRoom.idHouse;
+
+    return in;
+}
+
+QDataStream& operator << (QDataStream& out, const PropRoom& propRoom)
+{
+    out << quint8(Room)
+        << propRoom.name
+        << propRoom.square
+        << propRoom.countWindow
+        << propRoom.id
+        << propRoom.idHouse;
+
+    return out;
+}
+//------------------------------------------------------------------------------------
+
+QDataStream& operator >> (QDataStream& in,        PropSensor& propSensor)
+{
+    in >> propSensor.name
+       >> propSensor.typeSensor
+       >> propSensor.id
+       >> propSensor.idRoom;
+
+    return in;
+}
+
+QDataStream& operator << (QDataStream& out, const PropSensor& propSensor)
+{
+    out << quint8(Sensor)
+        << propSensor.name
+        << propSensor.typeSensor
+        << propSensor.id
+        << propSensor.idRoom;
+
+    return out;
+}
+//------------------------------------------------------------------------------------
