@@ -206,17 +206,20 @@ void SmartHomeConfig::saveToFile()
     }
 
     QDataStream out(&fileOut);
-    for(PropHouse* propHouse : vectorHouse)
+    foreach (PropHouse* propHouse, vectorHouse)
+//    for(PropHouse* propHouse : vectorHouse)
     {
         out << *propHouse;
     }
 
-    for(PropRoom* propRoom : vectorRoom)
+//    for(PropRoom* propRoom : vectorRoom)
+    foreach (PropRoom* propRoom, vectorRoom)
     {
         out << *propRoom;
     }
 
-    for(PropSensor* propSensor : vectorSensor)
+//    for(PropSensor* propSensor : vectorSensor)
+    foreach (PropSensor* propSensor, vectorSensor)
     {
         out << *propSensor;
     }
@@ -330,6 +333,21 @@ void SmartHomeConfig::load()
 
 void SmartHomeConfig::clear()
 {
+    QMessageBox msBoxClear = QMessageBox(QMessageBox::Question,
+                                         tr("Удаление"),
+                                         tr("Вы действительно хотите удалить?"),
+                                         QMessageBox::Yes | QMessageBox::No,
+                                         this);
+    msBoxClear.setButtonText(QMessageBox::Yes, tr("Да"));
+    msBoxClear.setButtonText(QMessageBox::No,  tr("Нет"));
+
+    int stButton = msBoxClear.exec();
+
+    if(stButton == QMessageBox::No)
+    {
+        return;
+    }
+
     for(int i = 0; i < vectorHouse.count(); i++)
     {
         delete vectorHouse[i];
@@ -1094,17 +1112,20 @@ PropSensor* SmartHomeConfig::findObjectSensor(QString id)
 
 void SmartHomeConfig::deleteItem()
 {
-    QMessageBox::StandardButton msBox = QMessageBox::question(this,
-                                                            "Удаление",
-                                                            QString("Вы действительно хотите удалить?"),
-                                                            QMessageBox::Yes | QMessageBox::No,
-                                                            QMessageBox::No);
+    QMessageBox msBoxDeleteItem = QMessageBox(QMessageBox::Question,
+                                              tr("Удаление"),
+                                              tr("Вы действительно хотите удалить?"),
+                                              QMessageBox::Yes | QMessageBox::No,
+                                              this);
+    msBoxDeleteItem.setButtonText(QMessageBox::Yes, tr("Да"));
+    msBoxDeleteItem.setButtonText(QMessageBox::No,  tr("Нет"));
 
-    if(msBox == QMessageBox::No)
+    int stButton = msBoxDeleteItem.exec();
+
+    if(stButton == QMessageBox::No)
     {
         return;
     }
-
     QTreeWidgetItem* item = ObjectsTree->currentItem();
 
     if(item == nullptr)
@@ -1264,7 +1285,7 @@ QDataStream& operator << (QDataStream& out, const PropHouse& propHouse)
 }
 //------------------------------------------------------------------------------------
 
-QDataStream& operator >> (QDataStream& in,        PropRoom& propRoom)
+QDataStream& operator >> (QDataStream& in, PropRoom& propRoom)
 {
     in >> propRoom.name
        >> propRoom.square
@@ -1288,7 +1309,7 @@ QDataStream& operator << (QDataStream& out, const PropRoom& propRoom)
 }
 //------------------------------------------------------------------------------------
 
-QDataStream& operator >> (QDataStream& in,        PropSensor& propSensor)
+QDataStream& operator >> (QDataStream& in, PropSensor& propSensor)
 {
     in >> propSensor.name
        >> propSensor.typeSensor
