@@ -161,6 +161,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 }
 //------------------------------------------------------------------------------------
 
+
 void SmartHomeConfig::messageOfUnconectedToServer()
 {
     QMessageBox::warning(this,
