@@ -13,6 +13,12 @@
 #include <QFile>
 #include <QDataStream>
 
+#include <QSqlDatabase>
+#include <QtSql>
+
+
+
+
 //------------------------------------------------------------------------------------
 struct PropHouse
 {
@@ -68,6 +74,11 @@ struct PropSensor
 
 };
 //------------------------------------------------------------------------------------
+
+//QT_BEGIN_NAMESPACE
+//namespace Ui { class SmartHomeConfig; }
+//QT_END_NAMESPACE
+
 
 class SmartHomeConfig : public QWidget
 {
@@ -157,6 +168,12 @@ private slots:
 
 public slots:
     void readyRead();
+
+private:
+    QSqlDatabase* dbase;
+
+public:
+    void setDBase(QSqlDatabase* dbase);
 };
 //------------------------------------------------------------------------------------
 #endif // SMARTHOMECONFIG_H
