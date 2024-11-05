@@ -32,6 +32,8 @@ enum HouseObject
 };
 //------------------------------------------------------------------------------------
 
+
+
 SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 {
     qApp->installEventFilter(this);
@@ -158,10 +160,54 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     connect(loadAction,      &QAction::triggered,              this, &SmartHomeConfig::load);
     connect(clearAction,     &QAction::triggered,              this, &SmartHomeConfig::clear);
     connect(removeAction,    &QAction::triggered,              this, &SmartHomeConfig::deleteItem);
+
+    copyHouse();
 }
 //------------------------------------------------------------------------------------
 
+//void SmartHomeConfig::copyHouse()
+//{
+//    QSqlQuery query = QSqlQuery(*dbase);
 
+//    QString selectSQL = "SELECT * FROM Houses;";
+
+//    if(!query.exec(selectSQL))
+//    {
+//        qDebug() << "[x] Error SELECT:" << query.lastError().text();
+//        return;
+//    }
+
+//    qDebug() << "[v] Success SELECT ";
+
+//    while(query.next())
+//    {
+//        PropHouse* propHouse = new PropHouse();
+//        propHouse->id      = query.value("id_").toString();
+//        propHouse->name    = query.value("name").toString();
+//        propHouse->address = query.value("address").toString();
+
+//        vectorHouse.append(propHouse);
+//    }
+//}
+
+
+
+
+//------------------------------------------------------------------------------------
+
+SmartHomeConfig::~SmartHomeConfig()
+{
+    dbase->close();
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::setDBase(QSqlDatabase* dbase)
+{
+    this->dbase = dbase;
+
+}
+//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 void SmartHomeConfig::messageOfUnconectedToServer()
 {
     QMessageBox::warning(this,
@@ -574,7 +620,28 @@ void SmartHomeConfig::addHouse()
     QTreeWidgetItem* houseItem = createHouseItem(propHouse);
 
     ObjectsTree->setCurrentItem(houseItem);
+
+// Добавляем дом в БД
+//    insertHouseTable(propHouse);
 }
+//------------------------------------------------------------------------------------
+
+
+//void SmartHomeConfig::insertHouseTable(PropHouse* propHouse)
+//{
+//    QSqlQuery query = QSqlQuery(*dbase);
+
+//    QString insertHouseSQL = QString("INSERT INTO Houses (id_, name, address) VALUES ('%1', '%2', '%3')").arg(propHouse->id).arg(propHouse->name).arg(propHouse->address);
+
+//    if(!query.exec(insertHouseSQL))
+//    {
+//        qDebug() << "[x] Error insert: " << query.lastError().text();
+//    }
+//    else
+//    {
+//        qDebug() << "[v] Success insert: ";
+//    }
+//}
 //------------------------------------------------------------------------------------
 
 QTreeWidgetItem* SmartHomeConfig::createHouseItem(PropHouse* propHouse)
@@ -880,8 +947,26 @@ void SmartHomeConfig::fillNameHousePassport()
 
     house->name = nameEditPassport->text();
     ObjectsTreeItem->setData(0, Qt::DisplayRole, house->name);
+
+
+//    insertHouseTable(idHouseItem, house->name);
 }
 //------------------------------------------------------------------------------------
+
+
+
+//void SmartHomeConfig::updateNameHouseTable(QString idHouseItem, QString name)
+//{
+//    QSqlQuery query = QSqlQuery(*dbase);
+
+//    QString findHouse = QString("UPDATE HOUSES"
+//                                "SET name = %1"
+//                                "WHERE id_ = %2;").arg(name).arg(idHouseItem);
+//}
+////checkQuery.first();
+////int i = checkQuery.value(0).toInt()
+
+
 
 void SmartHomeConfig::fillAddressHousePassport()
 {

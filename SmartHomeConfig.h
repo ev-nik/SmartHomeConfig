@@ -17,8 +17,6 @@
 #include <QtSql>
 
 
-
-
 //------------------------------------------------------------------------------------
 struct PropHouse
 {
@@ -86,6 +84,7 @@ class SmartHomeConfig : public QWidget
 
 public:
     SmartHomeConfig(QWidget* parent = nullptr);
+    ~SmartHomeConfig();
 
 private:
     QTreeWidget*  ObjectsTree;
@@ -133,6 +132,10 @@ public slots:
 
     void fillNameSensorPassport();
     void fillTypeSensorPassport();
+    /////////////////////
+//    void copyHouse();
+//    void insertHouseTable(PropHouse* propHouse);
+//    void updateNameHouseTable(QString idHouseItem, QString name);
 
 protected:
     bool eventFilter(QObject* obj, QEvent* event);
