@@ -73,11 +73,6 @@ struct PropSensor
 };
 //------------------------------------------------------------------------------------
 
-//QT_BEGIN_NAMESPACE
-//namespace Ui { class SmartHomeConfig; }
-//QT_END_NAMESPACE
-
-
 class SmartHomeConfig : public QWidget
 {
     Q_OBJECT
@@ -133,9 +128,21 @@ public slots:
     void fillNameSensorPassport();
     void fillTypeSensorPassport();
     /////////////////////
-//    void copyHouse();
-//    void insertHouseTable(PropHouse* propHouse);
-//    void updateNameHouseTable(QString idHouseItem, QString name);
+    void reloadHousesFromDB();
+    bool insertHouseTable(PropHouse* propHouse);
+    void updateNameHouseTable(PropHouse* propHouse);
+    void updateAddressHouseTable(PropHouse* propHouse);
+
+
+    void reloadRoomsFromDB(QTreeWidgetItem* houseItem);
+    bool insertRoomTable(PropRoom* propRoom);
+    void updateNameRoomTable(PropRoom* propRoom);
+    void updateSquareRoomTable(PropRoom* propRoom);
+    void updateWindowRoomTable(PropRoom* propRoom);
+
+
+
+
 
 protected:
     bool eventFilter(QObject* obj, QEvent* event);
@@ -176,7 +183,7 @@ private:
     QSqlDatabase* dbase;
 
 public:
-    void setDBase(QSqlDatabase* dbase);
+    void init(QSqlDatabase* dbase);
 };
 //------------------------------------------------------------------------------------
 #endif // SMARTHOMECONFIG_H

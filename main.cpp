@@ -20,7 +20,6 @@
 // -hN=localHost  -p=5432 -uN=postgres -pwd=19871 -dBN=SmartHomeConfig
 
 
-
 void printHelp()
 {
     qDebug() << "-h or --help\n"
@@ -48,8 +47,6 @@ void printHelp()
              << "-dBN=SmartHomeConfig\n";
 }
 //----------------------------------------------------------------------
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 bool createHouseTable(QSqlDatabase& dbase)
@@ -151,7 +148,7 @@ int main(int argc, char* argv[])
     qDebug() << "CONNECT DB";
 
     SmartHomeConfig sHC;
-    sHC.setDBase(&dbase);
+    sHC.init(&dbase);
 
     bool isCreateHousesTable  = createHouseTable(dbase);
     bool isCreateRoomsTable   = createRoomTable(dbase);

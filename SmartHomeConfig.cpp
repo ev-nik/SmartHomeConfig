@@ -160,39 +160,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     connect(loadAction,      &QAction::triggered,              this, &SmartHomeConfig::load);
     connect(clearAction,     &QAction::triggered,              this, &SmartHomeConfig::clear);
     connect(removeAction,    &QAction::triggered,              this, &SmartHomeConfig::deleteItem);
-
-    copyHouse();
 }
-//------------------------------------------------------------------------------------
-
-//void SmartHomeConfig::copyHouse()
-//{
-//    QSqlQuery query = QSqlQuery(*dbase);
-
-//    QString selectSQL = "SELECT * FROM Houses;";
-
-//    if(!query.exec(selectSQL))
-//    {
-//        qDebug() << "[x] Error SELECT:" << query.lastError().text();
-//        return;
-//    }
-
-//    qDebug() << "[v] Success SELECT ";
-
-//    while(query.next())
-//    {
-//        PropHouse* propHouse = new PropHouse();
-//        propHouse->id      = query.value("id_").toString();
-//        propHouse->name    = query.value("name").toString();
-//        propHouse->address = query.value("address").toString();
-
-//        vectorHouse.append(propHouse);
-//    }
-//}
-
-
-
-
 //------------------------------------------------------------------------------------
 
 SmartHomeConfig::~SmartHomeConfig()
@@ -201,13 +169,99 @@ SmartHomeConfig::~SmartHomeConfig()
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::setDBase(QSqlDatabase* dbase)
+void SmartHomeConfig::init(QSqlDatabase* dbase)
 {
     this->dbase = dbase;
 
+    reloadHousesFromDB();
+
 }
 //------------------------------------------------------------------------------------
+
+void SmartHomeConfig::reloadHousesFromDB()
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString selectSQL = "SELECT * FROM Houses;";
+
+    if(!query.exec(selectSQL))
+    {
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             QString("Не удалось восстановить дома из БД"),
+                             QMessageBox::Close);
+
+        qDebug() << "[x] Error SELECT:" << query.lastError().text();
+        return;
+    }
+
+    qDebug() << "[v] Success SELECT ";
+
+    while(query.next())
+    {
+        PropHouse* propHouse = new PropHouse();
+        propHouse->id      = query.value("id_").toString();
+        propHouse->name    = query.value("name").toString();
+        propHouse->address = query.value("address").toString();
+
+        vectorHouse.append(propHouse);
+
+        QTreeWidgetItem* houseItem = createHouseItem(propHouse);
+
+        reloadRoomsFromDB(houseItem);
+    }
+
+    ObjectsTree->expandAll();
+    QTreeWidgetItem* houseItem = ObjectsTree->topLevelItem(0);
+    ObjectsTree->setCurrentItem(houseItem);
+}
 //------------------------------------------------------------------------------------
+
+
+void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString selectSQL = "SELECT * FROM Rooms;";
+
+    if(!query.exec(selectSQL))
+    {
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             QString("Не удалось восстановить комнаты из БД"),
+                             QMessageBox::Close);
+
+        qDebug() << "[x] Error SELECT:" << query.lastError().text();
+        return;
+    }
+
+    qDebug() << "[v] Success SELECT ";
+
+    while(query.next())
+    {
+
+        PropRoom* propRoom = new PropRoom();
+
+        QString idHouse = houseItem->data(0, Qt::ToolTipRole).toString();
+
+        if(query.value("id_house").toString() != idHouse)
+        {
+            continue;
+        }
+
+        propRoom->id = query.value("id_").toString();
+        propRoom->idHouse = query.value("id_house").toString();
+        propRoom->name = query.value("name").toString();
+        propRoom->square = query.value("square").toDouble();
+        propRoom->countWindow = query.value("count_window").toInt();
+
+        vectorRoom.append(propRoom);
+
+        QTreeWidgetItem* roomItem = createRoomItem(propRoom, houseItem);
+    }
+}
+
+
 void SmartHomeConfig::messageOfUnconectedToServer()
 {
     QMessageBox::warning(this,
@@ -549,13 +603,8 @@ void SmartHomeConfig::readyRead()
                 QString str;
                 in >> str;
                 nextBlockSize = 0;
-                qDebug() << "from server" << str;
                 break;
-            }
-            else
-            {
-                qDebug() << "send server->client error!!!!!!!!!";
-            }
+            } 
         }
     }
 }
@@ -615,33 +664,45 @@ void SmartHomeConfig::addHouse()
 {
     PropHouse* propHouse = new PropHouse();
     propHouse->id = QUuid::createUuid().toString();
+
+    if(!insertHouseTable(propHouse))
+    {
+        delete propHouse;
+        return;
+    }
+
     vectorHouse.append(propHouse);
 
     QTreeWidgetItem* houseItem = createHouseItem(propHouse);
 
     ObjectsTree->setCurrentItem(houseItem);
-
-// Добавляем дом в БД
-//    insertHouseTable(propHouse);
 }
 //------------------------------------------------------------------------------------
 
+//  Добавляем дом в БД
+bool SmartHomeConfig::insertHouseTable(PropHouse* propHouse)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
 
-//void SmartHomeConfig::insertHouseTable(PropHouse* propHouse)
-//{
-//    QSqlQuery query = QSqlQuery(*dbase);
+    QString insertHouseSQL = QString("INSERT INTO Houses (id_, name, address) VALUES ('%1', '%2', '%3')").arg(propHouse->id).arg(propHouse->name).arg(propHouse->address);
 
-//    QString insertHouseSQL = QString("INSERT INTO Houses (id_, name, address) VALUES ('%1', '%2', '%3')").arg(propHouse->id).arg(propHouse->name).arg(propHouse->address);
+    if(!query.exec(insertHouseSQL))
+    {
+        qDebug() << "[x] Error insert house: " << query.lastError().text();
 
-//    if(!query.exec(insertHouseSQL))
-//    {
-//        qDebug() << "[x] Error insert: " << query.lastError().text();
-//    }
-//    else
-//    {
-//        qDebug() << "[v] Success insert: ";
-//    }
-//}
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             QString("Не удалось добавить дом в БД"),
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return false;
+    }
+
+// TODO
+    qDebug() << "[v] Success insert house";
+
+    return true;
+}
 //------------------------------------------------------------------------------------
 
 QTreeWidgetItem* SmartHomeConfig::createHouseItem(PropHouse* propHouse)
@@ -679,11 +740,41 @@ void SmartHomeConfig::addRoom()
 
     propRoom->id = QUuid::createUuid().toString();
     propRoom->idHouse = houseItem->data(0, Qt::ToolTipRole).toString();
+
+    if(!insertRoomTable(propRoom))
+    {
+        delete propRoom;
+        return;
+    }
+
     vectorRoom.append(propRoom);
 
     QTreeWidgetItem* roomItem = createRoomItem(propRoom, houseItem);
 
     ObjectsTree->setCurrentItem(roomItem);
+}
+
+bool SmartHomeConfig::insertRoomTable(PropRoom* propRoom)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString insertRoomSQL = QString("INSERT INTO Rooms (id_, id_house, name, square, count_window)"
+                                    "VALUES ('%1', '%2', '%3', '%4', '%5')").arg(propRoom->id).arg(propRoom->idHouse).arg(propRoom->name).arg(propRoom->square).arg(propRoom->countWindow);
+
+    if(!query.exec(insertRoomSQL))
+    {
+        qDebug() << "[x] Error insert room:" << query.lastError().text();
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             QString("Не удалось добавить комнату в БД"),
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return false;
+    }
+
+// TODO
+    qDebug() << "[v] Success insert room";
+    return true;
 }
 //------------------------------------------------------------------------------------
 
@@ -948,25 +1039,30 @@ void SmartHomeConfig::fillNameHousePassport()
     house->name = nameEditPassport->text();
     ObjectsTreeItem->setData(0, Qt::DisplayRole, house->name);
 
-
-//    insertHouseTable(idHouseItem, house->name);
+    updateNameHouseTable(house);
 }
 //------------------------------------------------------------------------------------
 
+void SmartHomeConfig::updateNameHouseTable(PropHouse* propHouse)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
 
+    QString findHouse = QString("UPDATE HOUSES SET name = '%1' WHERE id_ = '%2';").arg(propHouse->name).arg(propHouse->id);
 
-//void SmartHomeConfig::updateNameHouseTable(QString idHouseItem, QString name)
-//{
-//    QSqlQuery query = QSqlQuery(*dbase);
-
-//    QString findHouse = QString("UPDATE HOUSES"
-//                                "SET name = %1"
-//                                "WHERE id_ = %2;").arg(name).arg(idHouseItem);
-//}
-////checkQuery.first();
-////int i = checkQuery.value(0).toInt()
-
-
+    if(!query.exec(findHouse))
+    {
+        qDebug() << "[x] Error update house:" << query.lastError().text();
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             QString("Не удалось обновить дом"),
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
+// TODO
+        qDebug() << "[v] Success update house ";
+}
+//------------------------------------------------------------------------------------
 
 void SmartHomeConfig::fillAddressHousePassport()
 {
@@ -997,7 +1093,33 @@ void SmartHomeConfig::fillAddressHousePassport()
     }
 
     house->address = addressEditPassport->text();
+
+    updateAddressHouseTable(house);
 }
+
+
+void SmartHomeConfig::updateAddressHouseTable(PropHouse* propHouse)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString findHouse = QString("UPDATE HOUSES SET address = '%1' WHERE id_ = '%2';").arg(propHouse->address).arg(propHouse->id);
+
+    if(!query.exec(findHouse))
+    {
+        qDebug() << "[x] Error UPDATE address house: " << query .lastError().text();
+
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Не удалось обновить адрес дома",
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
+//TODO
+    qDebug() << "[v] Success UPDATE address house";
+}
+
+
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::fillNameRoomPassport()
@@ -1028,6 +1150,27 @@ void SmartHomeConfig::fillNameRoomPassport()
 
     room->name = nameEditPassport->text();
     ObjectsTreeItem->setData(0, Qt::DisplayRole, room->name);
+
+    updateNameRoomTable(room);
+}
+
+void SmartHomeConfig::updateNameRoomTable(PropRoom* propRoom)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString updateNameRoom = QString("UPDATE ROOMS SET name = '%1' WHERE id_ = '%2';").arg(propRoom->name).arg(propRoom->id);
+
+    if(!query.exec(updateNameRoom))
+    {
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             QString("Не удалось обновить имя комнаты"),
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
+//TODO
+    qDebug() << "[v] Success update name Room";
 }
 //------------------------------------------------------------------------------------
 
@@ -1058,6 +1201,28 @@ void SmartHomeConfig::fillSquareRoomPassport()
     }
 
     room->square = squareEditPassport->value();
+
+    updateSquareRoomTable(room);
+}
+
+
+void SmartHomeConfig::updateSquareRoomTable(PropRoom* propRoom)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString updateSquareRoom = QString("UPDATE ROOMS SET square = '%1' WHERE id_ = '%2';").arg(propRoom->square).arg(propRoom->id);
+
+    if(!query.exec(updateSquareRoom))
+    {
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             QString("Не удалось обновить площадь комнаты"),
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
+//TODO
+    qDebug() << "[v] Success update square Room";
 }
 //------------------------------------------------------------------------------------
 
@@ -1081,6 +1246,29 @@ void SmartHomeConfig::fillWindowRoomPassport(int count)
     }
 
     room->countWindow = count;
+
+    updateWindowRoomTable(room);
+}
+
+
+void SmartHomeConfig::updateWindowRoomTable(PropRoom* propRoom)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString updateWindowRoom = QString("UPDATE ROOMS SET count_window = '%1' WHERE id_ = '%2';").arg(propRoom->countWindow).arg(propRoom->id);
+
+    if(!query.exec(updateWindowRoom))
+    {
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Не удалось обновить колличество окон комнаты",
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
+
+//TODO
+    qDebug() << "[v] Success update countWindow Room";
 }
 //------------------------------------------------------------------------------------
 
