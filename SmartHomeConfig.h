@@ -141,6 +141,11 @@ public slots:
     void updateWindowRoomTable(PropRoom* propRoom);
 
 
+    void reloadSensorsFromDB(QTreeWidgetItem* roomItem);
+    bool insertSensorTable(PropSensor* propSensor);
+    void updateNameSensorTable(PropSensor* propSensor);
+    void updateTypeSensorTable(PropSensor* propSensor);
+
 
 
 

@@ -32,8 +32,6 @@ enum HouseObject
 };
 //------------------------------------------------------------------------------------
 
-
-
 SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
 {
     qApp->installEventFilter(this);
@@ -174,7 +172,6 @@ void SmartHomeConfig::init(QSqlDatabase* dbase)
     this->dbase = dbase;
 
     reloadHousesFromDB();
-
 }
 //------------------------------------------------------------------------------------
 
@@ -188,7 +185,7 @@ void SmartHomeConfig::reloadHousesFromDB()
     {
         QMessageBox::warning(this,
                              "Ошибка",
-                             QString("Не удалось восстановить дома из БД"),
+                             "Не удалось восстановить дома из БД",
                              QMessageBox::Close);
 
         qDebug() << "[x] Error SELECT:" << query.lastError().text();
@@ -217,7 +214,6 @@ void SmartHomeConfig::reloadHousesFromDB()
 }
 //------------------------------------------------------------------------------------
 
-
 void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
 {
     QSqlQuery query = QSqlQuery(*dbase);
@@ -228,14 +224,14 @@ void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
     {
         QMessageBox::warning(this,
                              "Ошибка",
-                             QString("Не удалось восстановить комнаты из БД"),
+                             "Не удалось восстановить комнаты из БД",
                              QMessageBox::Close);
-
+//TODO
         qDebug() << "[x] Error SELECT:" << query.lastError().text();
         return;
     }
-
-    qDebug() << "[v] Success SELECT ";
+//TODO
+    qDebug() << "[v] Success SELECT Rooms";
 
     while(query.next())
     {
@@ -249,18 +245,60 @@ void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
             continue;
         }
 
-        propRoom->id = query.value("id_").toString();
-        propRoom->idHouse = query.value("id_house").toString();
-        propRoom->name = query.value("name").toString();
-        propRoom->square = query.value("square").toDouble();
+        propRoom->id          = query.value("id_").toString();
+        propRoom->idHouse     = query.value("id_house").toString();
+        propRoom->name        = query.value("name").toString();
+        propRoom->square      = query.value("square").toDouble();
         propRoom->countWindow = query.value("count_window").toInt();
 
         vectorRoom.append(propRoom);
 
         QTreeWidgetItem* roomItem = createRoomItem(propRoom, houseItem);
+
+        reloadSensorsFromDB(roomItem);
     }
 }
 
+void SmartHomeConfig::reloadSensorsFromDB(QTreeWidgetItem* roomItem)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString selectSQL = "SELECT * FROM Sensors;";
+
+    if(!query.exec(selectSQL))
+    {
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Не удалось восстановить датчики из БД",
+                             QMessageBox::Close);
+//TODO
+        qDebug() << "[x] Error SELECT Sensors: " << query.lastError().text();
+        return;
+    }
+//TODO
+    qDebug() << "[v] Success SELECT Sensors";
+
+    while(query.next())
+    {
+        PropSensor* propSensor = new PropSensor();
+        QString idRoom = roomItem->data(0, Qt::ToolTipRole).toString();
+
+        if(query.value("id_room").toString() != idRoom)
+        {
+            continue;
+        }
+
+        propSensor->id         = query.value("id_").toString();
+        propSensor->idRoom     = query.value("id_room").toString();
+        propSensor->name       = query.value("name").toString();
+        propSensor->typeSensor = query.value("type_sensor").toInt();
+
+        vectorSensor.append(propSensor);
+
+        QTreeWidgetItem* sensorItem = createSensorItem(propSensor, roomItem);
+    }
+}
+//------------------------------------------------------------------------------------
 
 void SmartHomeConfig::messageOfUnconectedToServer()
 {
@@ -688,6 +726,7 @@ bool SmartHomeConfig::insertHouseTable(PropHouse* propHouse)
 
     if(!query.exec(insertHouseSQL))
     {
+// TODO
         qDebug() << "[x] Error insert house: " << query.lastError().text();
 
         QMessageBox::warning(this,
@@ -763,6 +802,7 @@ bool SmartHomeConfig::insertRoomTable(PropRoom* propRoom)
 
     if(!query.exec(insertRoomSQL))
     {
+//TODO
         qDebug() << "[x] Error insert room:" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
@@ -809,6 +849,13 @@ void SmartHomeConfig::addSensor()
 
     propSensor->id = QUuid::createUuid().toString();
     propSensor->idRoom = roomItem->data(0, Qt::ToolTipRole).toString();
+
+    if(!insertSensorTable(propSensor))
+    {
+        delete propSensor;
+        return;
+    }
+
     vectorSensor.append(propSensor);
 
     QTreeWidgetItem* sensorItem = createSensorItem(propSensor, roomItem);
@@ -816,6 +863,29 @@ void SmartHomeConfig::addSensor()
     ObjectsTree->setCurrentItem(sensorItem);
 }
 //------------------------------------------------------------------------------------
+
+bool SmartHomeConfig::insertSensorTable(PropSensor* propSensor)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString insertSensorTable = QString("INSERT INTO Sensors (id_, id_room, name, type_sensor)"
+                                        "VALUES ('%1', '%2', '%3', '%4')").arg(propSensor->id).arg(propSensor->idRoom).arg(propSensor->name).arg(propSensor->typeSensor);
+
+    if(!query.exec(insertSensorTable))
+    {
+// TODO
+        qDebug() << "[x] Error insert sensor";
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Не удалось добавить датчик в БД",
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return false;
+    }
+// TODO
+    qDebug() << "[v] Success insert sensor";
+    return true;
+}
 
 QTreeWidgetItem* SmartHomeConfig::createSensorItem(PropSensor* propSensor, QTreeWidgetItem* roomItem)
 {
@@ -1051,10 +1121,11 @@ void SmartHomeConfig::updateNameHouseTable(PropHouse* propHouse)
 
     if(!query.exec(findHouse))
     {
+// TODO
         qDebug() << "[x] Error update house:" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             QString("Не удалось обновить дом"),
+                             "Не удалось обновить дом",
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
@@ -1106,6 +1177,7 @@ void SmartHomeConfig::updateAddressHouseTable(PropHouse* propHouse)
 
     if(!query.exec(findHouse))
     {
+// TODO
         qDebug() << "[x] Error UPDATE address house: " << query .lastError().text();
 
         QMessageBox::warning(this,
@@ -1118,8 +1190,6 @@ void SmartHomeConfig::updateAddressHouseTable(PropHouse* propHouse)
 //TODO
     qDebug() << "[v] Success UPDATE address house";
 }
-
-
 //------------------------------------------------------------------------------------
 
 void SmartHomeConfig::fillNameRoomPassport()
@@ -1162,9 +1232,11 @@ void SmartHomeConfig::updateNameRoomTable(PropRoom* propRoom)
 
     if(!query.exec(updateNameRoom))
     {
+//TODO
+        qDebug() << "[x] Error UPDATE name room: " << query .lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             QString("Не удалось обновить имя комнаты"),
+                             "Не удалось обновить имя комнаты",
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
@@ -1214,9 +1286,11 @@ void SmartHomeConfig::updateSquareRoomTable(PropRoom* propRoom)
 
     if(!query.exec(updateSquareRoom))
     {
+//TODO
+        qDebug() << "[x] Error UPDATE square room: " << query .lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             QString("Не удалось обновить площадь комнаты"),
+                             "Не удалось обновить площадь комнаты",
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
@@ -1259,6 +1333,8 @@ void SmartHomeConfig::updateWindowRoomTable(PropRoom* propRoom)
 
     if(!query.exec(updateWindowRoom))
     {
+//TODO
+        qDebug() << "[x] Error UPDATE count_window room: " << query .lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
                              "Не удалось обновить колличество окон комнаты",
@@ -1300,6 +1376,30 @@ void SmartHomeConfig::fillNameSensorPassport()
 
     sensor->name = nameEditPassport->text();
     ObjectTreeItem->setData(0, Qt::DisplayRole, sensor->name);
+
+    updateNameSensorTable(sensor);
+}
+
+
+void SmartHomeConfig::updateNameSensorTable(PropSensor* propSensor)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString updateNameSensor = QString("UPDATE SENSORS SET name = '%1' WHERE id_ = '%2';").arg(propSensor->name).arg(propSensor->id);
+
+    if(!query.exec(updateNameSensor))
+    {
+//TODO
+        qDebug() << "[x] Error UPDATE name sensor: " << query .lastError().text();
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Не удалось обновить имя датчика",
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
+//TODO
+    qDebug() << "[v] Success update name sensor";
 }
 //------------------------------------------------------------------------------------
 
@@ -1330,6 +1430,32 @@ void SmartHomeConfig::fillTypeSensorPassport()
     }
 
     sensor->typeSensor = cBoxEditPassport->currentIndex();
+
+    updateTypeSensorTable(sensor);
+}
+
+
+void SmartHomeConfig::updateTypeSensorTable(PropSensor* propSensor)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString updateTypeSensor = QString("UPDATE Sensors SET type_sensor = '%1' WHERE id_ = '%2';").arg(propSensor->typeSensor).arg(propSensor->id);
+
+    if(!query.exec(updateTypeSensor))
+    {
+//TODO
+        qDebug() << "[x] Error UPDATE type_sensor";
+
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Не удалось обновить тип датчика",
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
+
+//TODO
+    qDebug() << "[v] Success update type_sensor";
 }
 //------------------------------------------------------------------------------------
 
