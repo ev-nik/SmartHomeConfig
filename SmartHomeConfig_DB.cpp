@@ -57,9 +57,13 @@ bool SmartHomeConfig::insertHouseTable(PropHouse* propHouse)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString insertHouseSQL = QString("INSERT INTO Houses (id_, name, address) VALUES ('%1', '%2', '%3')").arg(propHouse->id).arg(propHouse->name).arg(propHouse->address);
+    QString insertHouseSQL = QString("INSERT INTO Houses (id_, name, address) VALUES (:id_, :name, :address);");
+    query.prepare(insertHouseSQL);
+    query.bindValue(":id_"    , propHouse->id);
+    query.bindValue(":name"   , propHouse->name);
+    query.bindValue(":address", propHouse->address);
 
-    if(!query.exec(insertHouseSQL))
+    if(!query.exec())
     {
 // TODO
         qDebug() << "[x] Error insert house: " << query.lastError().text();
@@ -83,9 +87,12 @@ void SmartHomeConfig::updateNameHouseTable(PropHouse* propHouse)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString findHouse = QString("UPDATE HOUSES SET name = '%1' WHERE id_ = '%2';").arg(propHouse->name).arg(propHouse->id);
+    QString findHouse = QString("UPDATE HOUSES SET name = :name WHERE id_ = :id;");
+    query.prepare(findHouse);
+    query.bindValue(":name", propHouse->name);
+    query.bindValue(":id"  , propHouse->id);
 
-    if(!query.exec(findHouse))
+    if(!query.exec())
     {
 // TODO
         qDebug() << "[x] Error update house:" << query.lastError().text();
@@ -105,9 +112,12 @@ void SmartHomeConfig::updateAddressHouseTable(PropHouse* propHouse)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString findHouse = QString("UPDATE HOUSES SET address = '%1' WHERE id_ = '%2';").arg(propHouse->address).arg(propHouse->id);
+    QString findHouse = QString("UPDATE HOUSES SET address = :address WHERE id_ = :id;");
+    query.prepare(findHouse);
+    query.bindValue(":address", propHouse->address);
+    query.bindValue(":id"     , propHouse->id);
 
-    if(!query.exec(findHouse))
+    if(!query.exec())
     {
 // TODO
         qDebug() << "[x] Error UPDATE address house: " << query .lastError().text();
@@ -181,10 +191,15 @@ bool SmartHomeConfig::insertRoomTable(PropRoom* propRoom)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString insertRoomSQL = QString("INSERT INTO Rooms (id_, id_house, name, square, count_window)"
-                                    "VALUES ('%1', '%2', '%3', '%4', '%5')").arg(propRoom->id).arg(propRoom->idHouse).arg(propRoom->name).arg(propRoom->square).arg(propRoom->countWindow);
+    QString insertRoomSQL = QString("INSERT INTO Rooms (id_, id_house, name, square, count_window) VALUES (:id_, :id_house, :name, :square, :count_window);");
+    query.prepare(insertRoomSQL);
+    query.bindValue(":id_"         , propRoom->id);
+    query.bindValue(":id_house"    , propRoom->idHouse);
+    query.bindValue(":name"        , propRoom->name);
+    query.bindValue(":square"      , propRoom->square);
+    query.bindValue(":count_window", propRoom->countWindow);
 
-    if(!query.exec(insertRoomSQL))
+    if(!query.exec())
     {
 //TODO
         qDebug() << "[x] Error insert room:" << query.lastError().text();
@@ -206,9 +221,12 @@ void SmartHomeConfig::updateNameRoomTable(PropRoom* propRoom)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString updateNameRoom = QString("UPDATE ROOMS SET name = '%1' WHERE id_ = '%2';").arg(propRoom->name).arg(propRoom->id);
+    QString updateNameRoom = QString("UPDATE ROOMS SET name = :name WHERE id_ = :id;");
+    query.prepare(updateNameRoom);
+    query.bindValue(":name", propRoom->name);
+    query.bindValue(":id"  , propRoom->id);
 
-    if(!query.exec(updateNameRoom))
+    if(!query.exec())
     {
 //TODO
         qDebug() << "[x] Error UPDATE name room: " << query .lastError().text();
@@ -228,9 +246,12 @@ void SmartHomeConfig::updateSquareRoomTable(PropRoom* propRoom)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString updateSquareRoom = QString("UPDATE ROOMS SET square = '%1' WHERE id_ = '%2';").arg(propRoom->square).arg(propRoom->id);
+    QString updateSquareRoom = QString("UPDATE ROOMS SET square = :square WHERE id_ = :id;");
+    query.prepare(updateSquareRoom);
+    query.bindValue(":square", propRoom->square);
+    query.bindValue(":id"    , propRoom->id);
 
-    if(!query.exec(updateSquareRoom))
+    if(!query.exec())
     {
 //TODO
         qDebug() << "[x] Error UPDATE square room: " << query .lastError().text();
@@ -250,9 +271,12 @@ void SmartHomeConfig::updateWindowRoomTable(PropRoom* propRoom)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString updateWindowRoom = QString("UPDATE ROOMS SET count_window = '%1' WHERE id_ = '%2';").arg(propRoom->countWindow).arg(propRoom->id);
+    QString updateWindowRoom = QString("UPDATE ROOMS SET count_window = :countWindow WHERE id_ = :id;");
+    query.prepare(updateWindowRoom);
+    query.bindValue(":countWindow", propRoom->countWindow);
+    query.bindValue(":id"         , propRoom->id);
 
-    if(!query.exec(updateWindowRoom))
+    if(!query.exec())
     {
 //TODO
         qDebug() << "[x] Error UPDATE count_window room: " << query .lastError().text();
@@ -268,13 +292,6 @@ void SmartHomeConfig::updateWindowRoomTable(PropRoom* propRoom)
     qDebug() << "[v] Success update countWindow Room";
 }
 //------------------------------------------------------------------------------------
-
-
-
-
-
-
-
 
 
 
@@ -325,10 +342,14 @@ bool SmartHomeConfig::insertSensorTable(PropSensor* propSensor)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString insertSensorTable = QString("INSERT INTO Sensors (id_, id_room, name, type_sensor)"
-                                        "VALUES ('%1', '%2', '%3', '%4')").arg(propSensor->id).arg(propSensor->idRoom).arg(propSensor->name).arg(propSensor->typeSensor);
+    QString insertSensorTable = QString("INSERT INTO Sensors (id_, id_room, name, type_sensor) VALUES (:id, :idRoom, :name, :typeSensor);");
+    query.prepare(insertSensorTable);
+    query.bindValue(":id"        , propSensor->id);
+    query.bindValue(":idRoom"    , propSensor->idRoom);
+    query.bindValue(":name"      , propSensor->name);
+    query.bindValue(":typeSensor", propSensor->typeSensor);
 
-    if(!query.exec(insertSensorTable))
+    if(!query.exec())
     {
 // TODO
         qDebug() << "[x] Error insert sensor";
@@ -349,9 +370,12 @@ void SmartHomeConfig::updateNameSensorTable(PropSensor* propSensor)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString updateNameSensor = QString("UPDATE SENSORS SET name = '%1' WHERE id_ = '%2';").arg(propSensor->name).arg(propSensor->id);
+    QString updateNameSensor = QString("UPDATE SENSORS SET name = :name WHERE id_ = :id;");
+    query.prepare(updateNameSensor);
+    query.bindValue(":name", propSensor->name);
+    query.bindValue(":id"  , propSensor->id);
 
-    if(!query.exec(updateNameSensor))
+    if(!query.exec())
     {
 //TODO
         qDebug() << "[x] Error UPDATE name sensor: " << query .lastError().text();
@@ -371,9 +395,12 @@ void SmartHomeConfig::updateTypeSensorTable(PropSensor* propSensor)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString updateTypeSensor = QString("UPDATE Sensors SET type_sensor = '%1' WHERE id_ = '%2';").arg(propSensor->typeSensor).arg(propSensor->id);
+    QString updateTypeSensor = QString("UPDATE Sensors SET type_sensor = :typeSensor WHERE id_ = :id;");
+    query.prepare(updateTypeSensor);
+    query.bindValue(":typeSensor", propSensor->typeSensor);
+    query.bindValue(":id"        , propSensor->id);
 
-    if(!query.exec(updateTypeSensor))
+    if(!query.exec())
     {
 //TODO
         qDebug() << "[x] Error UPDATE type_sensor";
