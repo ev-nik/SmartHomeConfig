@@ -135,16 +135,13 @@ void SmartHomeConfig::updateAddressHouseTable(PropHouse* propHouse)
 //------------------------------------------------------------------------------------
 
 
-
-
-
-
-
 void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString selectSQL = "SELECT * FROM Rooms;";
+    QString idHouse = houseItem->data(0, Qt::ToolTipRole).toString();
+
+    QString selectSQL = QString("SELECT * FROM Rooms WHERE id_House = '%1';").arg(idHouse);
 
     if(!query.exec(selectSQL))
     {
@@ -161,16 +158,7 @@ void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
 
     while(query.next())
     {
-
         PropRoom* propRoom = new PropRoom();
-
-        QString idHouse = houseItem->data(0, Qt::ToolTipRole).toString();
-
-        if(query.value("id_house").toString() != idHouse)
-        {
-            delete propRoom; //Правильно??????
-            continue;
-        }
 
         propRoom->id          = query.value("id_").toString();
         propRoom->idHouse     = query.value("id_house").toString();
@@ -185,6 +173,7 @@ void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
         reloadSensorsFromDB(roomItem);
     }
 }
+
 //------------------------------------------------------------------------------------
 
 bool SmartHomeConfig::insertRoomTable(PropRoom* propRoom)
@@ -300,7 +289,9 @@ void SmartHomeConfig::reloadSensorsFromDB(QTreeWidgetItem* roomItem)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString selectSQL = "SELECT * FROM Sensors;";
+    QString idRoom = roomItem->data(0, Qt::ToolTipRole).toString();
+
+    QString selectSQL = QString("SELECT * FROM Sensors WHERE id_room = '%1';").arg(idRoom);
 
     if(!query.exec(selectSQL))
     {
@@ -318,13 +309,6 @@ void SmartHomeConfig::reloadSensorsFromDB(QTreeWidgetItem* roomItem)
     while(query.next())
     {
         PropSensor* propSensor = new PropSensor();
-        QString idRoom = roomItem->data(0, Qt::ToolTipRole).toString();
-
-        if(query.value("id_room").toString() != idRoom)
-        {
-            delete propSensor; // Правильно??????
-            continue;
-        }
 
         propSensor->id         = query.value("id_").toString();
         propSensor->idRoom     = query.value("id_room").toString();
