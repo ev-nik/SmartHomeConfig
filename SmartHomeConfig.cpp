@@ -1259,6 +1259,7 @@ void SmartHomeConfig::deleteHouse(QTreeWidgetItem* item)
 
     if(house != nullptr)
     {
+        deleteHouseFromTable(house);
         vectorHouse.removeAll(house);
         delete house;
     }
@@ -1284,6 +1285,7 @@ void SmartHomeConfig::deleteRoom(QTreeWidgetItem* item)
 
     if(room != nullptr)
     {
+        deleteRoomFromTable(room);
         vectorRoom.removeAll(room);
         delete room;
     }
@@ -1302,6 +1304,7 @@ void SmartHomeConfig::deleteSensor(QTreeWidgetItem* item)
 
     if(sensor != nullptr)
     {
+        deleteSensorFromTable(sensor);
         vectorSensor.removeAll(sensor);
         delete sensor;
     }

@@ -5,7 +5,6 @@
 #include <QMessageBox>
 //------------------------------------------------------------------------------------
 
-
 void SmartHomeConfig::reloadHousesFromDB()
 {
     QSqlQuery query = QSqlQuery(*dbase);
@@ -134,7 +133,6 @@ void SmartHomeConfig::updateAddressHouseTable(PropHouse* propHouse)
 }
 //------------------------------------------------------------------------------------
 
-
 void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
 {
     QSqlQuery query = QSqlQuery(*dbase);
@@ -173,7 +171,6 @@ void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
         reloadSensorsFromDB(roomItem);
     }
 }
-
 //------------------------------------------------------------------------------------
 
 bool SmartHomeConfig::insertRoomTable(PropRoom* propRoom)
@@ -276,14 +273,10 @@ void SmartHomeConfig::updateWindowRoomTable(PropRoom* propRoom)
                              QMessageBox::Close);
         return;
     }
-
 //TODO
     qDebug() << "[v] Success update countWindow Room";
 }
 //------------------------------------------------------------------------------------
-
-
-
 
 void SmartHomeConfig::reloadSensorsFromDB(QTreeWidgetItem* roomItem)
 {
@@ -402,39 +395,69 @@ void SmartHomeConfig::updateTypeSensorTable(PropSensor* propSensor)
 }
 //------------------------------------------------------------------------------------
 
+void SmartHomeConfig::deleteHouseFromTable(PropHouse* propHouse)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString deleteHouseSQL = QString("DELETE FROM Houses WHERE id_ = '%1';").arg(propHouse->id);
+
+    if(!query.exec(deleteHouseSQL))
+    {
+        qDebug() << "[x] Error delete House!";
+
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Не удалось удалить дом",
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
+
+    qDebug() << "![v] Success delete House";
+}
+//------------------------------------------------------------------------------------
+
+void SmartHomeConfig::deleteRoomFromTable(PropRoom* propRoom)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString deleteRoomSQL = QString("DELETE FROM Rooms WHERE id_ = '%1';").arg(propRoom->id);
 
 
+    if(!query.exec(deleteRoomSQL))
+    {
+        qDebug() << "[x] Error delete Room!!";
 
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Не удалось удалить комнату",
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
 
+    qDebug() << "!![v] Success delete Room";
+}
+//------------------------------------------------------------------------------------
 
+void SmartHomeConfig::deleteSensorFromTable(PropSensor* propSensor)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
 
+    QString deleteSensorSQL = QString("DELETE FROM SENSORS WHERE id_ = '%1';").arg(propSensor->id);
 
+    if(!query.exec(deleteSensorSQL))
+    {
+        qDebug() << "[x] Error delete Sensor!";
 
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Не удалось удалить комнату",
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    qDebug() << "!!![v] Success delete Sensor";
+}
+//------------------------------------------------------------------------------------

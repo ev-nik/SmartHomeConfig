@@ -132,6 +132,7 @@ public slots:
     bool insertHouseTable(PropHouse* propHouse);
     void updateNameHouseTable(PropHouse* propHouse);
     void updateAddressHouseTable(PropHouse* propHouse);
+    void deleteHouseFromTable(PropHouse* propHouse);
 
 
     void reloadRoomsFromDB(QTreeWidgetItem* houseItem);
@@ -139,12 +140,14 @@ public slots:
     void updateNameRoomTable(PropRoom* propRoom);
     void updateSquareRoomTable(PropRoom* propRoom);
     void updateWindowRoomTable(PropRoom* propRoom);
+    void deleteRoomFromTable(PropRoom* propRoom);
 
 
     void reloadSensorsFromDB(QTreeWidgetItem* roomItem);
     bool insertSensorTable(PropSensor* propSensor);
     void updateNameSensorTable(PropSensor* propSensor);
     void updateTypeSensorTable(PropSensor* propSensor);
+    void deleteSensorFromTable(PropSensor* propSensor);
 
 
 
