@@ -355,6 +355,11 @@ void SmartHomeConfig::clear()
     msBoxClear.setButtonText(QMessageBox::Yes, tr("Да"));
     msBoxClear.setButtonText(QMessageBox::No,  tr("Нет"));
 
+    if(!clearFromTables())
+    {
+        return;
+    }
+
     int stButton = msBoxClear.exec();
 
     if(stButton == QMessageBox::No)

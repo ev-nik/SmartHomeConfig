@@ -461,3 +461,26 @@ void SmartHomeConfig::deleteSensorFromTable(PropSensor* propSensor)
     qDebug() << "!!![v] Success delete Sensor";
 }
 //------------------------------------------------------------------------------------
+
+bool SmartHomeConfig::clearFromTables()
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString clearSQL = "DELETE FROM Houses; DELETE FROM Rooms; DELETE FROM Sensors;";
+
+    if(!query.exec(clearSQL))
+    {
+        qWarning() << Q_FUNC_INFO << "[x] Error DELETE tables";
+
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Ошибка при удалении данных",
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return false;
+    }
+
+    qDebug() << "[v] Success DELETE tables";
+    return true;
+}
+//------------------------------------------------------------------------------------

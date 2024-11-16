@@ -127,13 +127,13 @@ public slots:
 
     void fillNameSensorPassport();
     void fillTypeSensorPassport();
-    /////////////////////
+
+private:
     void reloadHousesFromDB();
     bool insertHouseTable(PropHouse* propHouse);
     void updateNameHouseTable(PropHouse* propHouse);
     void updateAddressHouseTable(PropHouse* propHouse);
     void deleteHouseFromTable(PropHouse* propHouse);
-
 
     void reloadRoomsFromDB(QTreeWidgetItem* houseItem);
     bool insertRoomTable(PropRoom* propRoom);
@@ -142,15 +142,13 @@ public slots:
     void updateWindowRoomTable(PropRoom* propRoom);
     void deleteRoomFromTable(PropRoom* propRoom);
 
-
     void reloadSensorsFromDB(QTreeWidgetItem* roomItem);
     bool insertSensorTable(PropSensor* propSensor);
     void updateNameSensorTable(PropSensor* propSensor);
     void updateTypeSensorTable(PropSensor* propSensor);
     void deleteSensorFromTable(PropSensor* propSensor);
 
-
-
+    bool clearFromTables();
 
 protected:
     bool eventFilter(QObject* obj, QEvent* event);
