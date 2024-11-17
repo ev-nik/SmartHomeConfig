@@ -13,16 +13,13 @@ void SmartHomeConfig::reloadHousesFromDB()
 
     if(!query.exec(selectSQL))
     {
+        qWarning() << Q_FUNC_INFO << "[x] Error SELECT:" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось восстановить дома из БД",
+                             QString("Не удалось восстановить дома из БД: %1").arg(query.lastError().text()),
                              QMessageBox::Close);
-
-        qDebug() << "[x] Error SELECT:" << query.lastError().text();
         return;
     }
-
-    qDebug() << "[v] Success SELECT ";
 
     while(query.next())
     {
@@ -64,19 +61,14 @@ bool SmartHomeConfig::insertHouseTable(PropHouse* propHouse)
 
     if(!query.exec())
     {
-// TODO
-        qDebug() << "[x] Error insert house: " << query.lastError().text();
-
+        qWarning() << Q_FUNC_INFO << "[x] Error insert house: " << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             QString("Не удалось добавить дом в БД"),
+                             QString("Не удалось добавить дом в БД: %1").arg(query.lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return false;
     }
-
-// TODO
-    qDebug() << "[v] Success insert house";
 
     return true;
 }
@@ -93,17 +85,14 @@ void SmartHomeConfig::updateNameHouseTable(PropHouse* propHouse)
 
     if(!query.exec())
     {
-// TODO
-        qDebug() << "[x] Error update house:" << query.lastError().text();
+        qWarning() << Q_FUNC_INFO << "[x] Error update house:" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось обновить дом",
+                             QString("Не удалось обновить дом: %1").arg(query.lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
     }
-// TODO
-        qDebug() << "[v] Success update house ";
 }
 //------------------------------------------------------------------------------------
 
@@ -118,18 +107,14 @@ void SmartHomeConfig::updateAddressHouseTable(PropHouse* propHouse)
 
     if(!query.exec())
     {
-// TODO
-        qDebug() << "[x] Error UPDATE address house: " << query .lastError().text();
-
+        qWarning() << Q_FUNC_INFO << "[x] Error UPDATE address house: " << query .lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось обновить адрес дома",
+                             QString("Не удалось обновить адрес дома: %1").arg(query .lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
     }
-//TODO
-    qDebug() << "[v] Success UPDATE address house";
 }
 //------------------------------------------------------------------------------------
 
@@ -143,21 +128,17 @@ void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
 
     if(!query.exec(selectSQL))
     {
+        qWarning() << Q_FUNC_INFO << "[x] Error SELECT:" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось восстановить комнаты из БД",
+                             QString("Не удалось восстановить комнаты из БД: %1").arg(query.lastError().text()),
                              QMessageBox::Close);
-//TODO
-        qDebug() << "[x] Error SELECT:" << query.lastError().text();
         return;
     }
-//TODO
-    qDebug() << "[v] Success SELECT Rooms";
 
     while(query.next())
     {
         PropRoom* propRoom = new PropRoom();
-
         propRoom->id          = query.value("id_").toString();
         propRoom->idHouse     = query.value("id_house").toString();
         propRoom->name        = query.value("name").toString();
@@ -187,18 +168,15 @@ bool SmartHomeConfig::insertRoomTable(PropRoom* propRoom)
 
     if(!query.exec())
     {
-//TODO
-        qDebug() << "[x] Error insert room:" << query.lastError().text();
+        qWarning() << Q_FUNC_INFO << "[x] Error insert room:" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             QString("Не удалось добавить комнату в БД"),
+                             QString("Не удалось добавить комнату в БД: %1").arg(query.lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return false;
     }
 
-// TODO
-    qDebug() << "[v] Success insert room";
     return true;
 }
 //------------------------------------------------------------------------------------
@@ -214,17 +192,14 @@ void SmartHomeConfig::updateNameRoomTable(PropRoom* propRoom)
 
     if(!query.exec())
     {
-//TODO
-        qDebug() << "[x] Error UPDATE name room: " << query .lastError().text();
+        qWarning() << Q_FUNC_INFO << "[x] Error UPDATE name room: " << query .lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось обновить имя комнаты",
+                             QString("Не удалось обновить имя комнаты: %1").arg(query .lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
     }
-//TODO
-    qDebug() << "[v] Success update name Room";
 }
 //------------------------------------------------------------------------------------
 
@@ -239,17 +214,14 @@ void SmartHomeConfig::updateSquareRoomTable(PropRoom* propRoom)
 
     if(!query.exec())
     {
-//TODO
-        qDebug() << "[x] Error UPDATE square room: " << query .lastError().text();
+        qWarning() << Q_FUNC_INFO << "[x] Error UPDATE square room: " << query .lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось обновить площадь комнаты",
+                             QString("Не удалось обновить площадь комнаты: %1").arg(query .lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
     }
-//TODO
-    qDebug() << "[v] Success update square Room";
 }
 //------------------------------------------------------------------------------------
 
@@ -264,17 +236,14 @@ void SmartHomeConfig::updateWindowRoomTable(PropRoom* propRoom)
 
     if(!query.exec())
     {
-//TODO
-        qDebug() << "[x] Error UPDATE count_window room: " << query .lastError().text();
+        qWarning() << Q_FUNC_INFO << "[x] Error UPDATE count_window room: " << query .lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось обновить колличество окон комнаты",
+                             QString("Не удалось обновить колличество окон комнаты: %1").arg(query .lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
     }
-//TODO
-    qDebug() << "[v] Success update countWindow Room";
 }
 //------------------------------------------------------------------------------------
 
@@ -288,16 +257,13 @@ void SmartHomeConfig::reloadSensorsFromDB(QTreeWidgetItem* roomItem)
 
     if(!query.exec(selectSQL))
     {
+        qWarning() << Q_FUNC_INFO << "[x] Error SELECT Sensors: " << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось восстановить датчики из БД",
+                             QString("Не удалось восстановить датчики из БД: %1").arg(query.lastError().text()),
                              QMessageBox::Close);
-//TODO
-        qDebug() << "[x] Error SELECT Sensors: " << query.lastError().text();
         return;
     }
-//TODO
-    qDebug() << "[v] Success SELECT Sensors";
 
     while(query.next())
     {
@@ -328,17 +294,14 @@ bool SmartHomeConfig::insertSensorTable(PropSensor* propSensor)
 
     if(!query.exec())
     {
-// TODO
-        qDebug() << "[x] Error insert sensor";
+        qWarning() << Q_FUNC_INFO << "[x] Error insert sensor" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось добавить датчик в БД",
+                             QString("Не удалось добавить датчик в БД: %1").arg(query.lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return false;
     }
-// TODO
-    qDebug() << "[v] Success insert sensor";
     return true;
 }
 //------------------------------------------------------------------------------------
@@ -354,17 +317,14 @@ void SmartHomeConfig::updateNameSensorTable(PropSensor* propSensor)
 
     if(!query.exec())
     {
-//TODO
-        qDebug() << "[x] Error UPDATE name sensor: " << query .lastError().text();
+        qWarning() << Q_FUNC_INFO << "[x] Error UPDATE name sensor: " << query .lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось обновить имя датчика",
+                             QString("Не удалось обновить имя датчика: %1").arg(query .lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
     }
-//TODO
-    qDebug() << "[v] Success update name sensor";
 }
 //------------------------------------------------------------------------------------
 
@@ -379,19 +339,14 @@ void SmartHomeConfig::updateTypeSensorTable(PropSensor* propSensor)
 
     if(!query.exec())
     {
-//TODO
-        qDebug() << "[x] Error UPDATE type_sensor";
-
+        qWarning() << Q_FUNC_INFO << "[x] Error UPDATE type_sensor" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось обновить тип датчика",
+                             QString("Не удалось обновить тип датчика: %1").arg(query.lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
     }
-
-//TODO
-    qDebug() << "[v] Success update type_sensor";
 }
 //------------------------------------------------------------------------------------
 
@@ -403,17 +358,14 @@ void SmartHomeConfig::deleteHouseFromTable(PropHouse* propHouse)
 
     if(!query.exec(deleteHouseSQL))
     {
-        qDebug() << "[x] Error delete House!";
-
+        qWarning() << Q_FUNC_INFO << "[x] Error delete House!" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось удалить дом",
+                             QString("Не удалось удалить дом: %1").arg(query.lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
     }
-
-    qDebug() << "![v] Success delete House";
 }
 //------------------------------------------------------------------------------------
 
@@ -423,20 +375,16 @@ void SmartHomeConfig::deleteRoomFromTable(PropRoom* propRoom)
 
     QString deleteRoomSQL = QString("DELETE FROM Rooms WHERE id_ = '%1';").arg(propRoom->id);
 
-
     if(!query.exec(deleteRoomSQL))
     {
-        qDebug() << "[x] Error delete Room!!";
-
+        qWarning() << Q_FUNC_INFO << "[x] Error delete Room!!" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось удалить комнату",
+                             QString("Не удалось удалить комнату: %1").arg(query.lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
     }
-
-    qDebug() << "!![v] Success delete Room";
 }
 //------------------------------------------------------------------------------------
 
@@ -448,17 +396,14 @@ void SmartHomeConfig::deleteSensorFromTable(PropSensor* propSensor)
 
     if(!query.exec(deleteSensorSQL))
     {
-        qDebug() << "[x] Error delete Sensor!";
-
+        qWarning() << Q_FUNC_INFO << "[x] Error delete Sensor!" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Не удалось удалить комнату",
+                             QString("Не удалось удалить комнату: %1").arg(query.lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;
     }
-
-    qDebug() << "!!![v] Success delete Sensor";
 }
 //------------------------------------------------------------------------------------
 
@@ -470,17 +415,14 @@ bool SmartHomeConfig::clearFromTables()
 
     if(!query.exec(clearSQL))
     {
-        qWarning() << Q_FUNC_INFO << "[x] Error DELETE tables";
-
+        qWarning() << Q_FUNC_INFO << "[x] Error DELETE tables" << query.lastError().text();
         QMessageBox::warning(this,
                              "Ошибка",
-                             "Ошибка при удалении данных",
+                             QString("Ошибка при удалении данных: %1").arg(query.lastError().text()),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return false;
     }
-
-    qDebug() << "[v] Success DELETE tables";
     return true;
 }
 //------------------------------------------------------------------------------------
