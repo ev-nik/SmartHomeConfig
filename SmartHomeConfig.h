@@ -141,7 +141,7 @@ private:
     void updateAddressHouseTable(PropHouse* propHouse);
     bool deleteHouseFromTable(PropHouse* propHouse);
 
-    void reloadRoomsFromDB(QTreeWidgetItem* houseItem);
+    bool reloadRoomsFromDB(QTreeWidgetItem* houseItem);
     bool insertRoomTable(PropRoom* propRoom);
     void updateNameRoomTable(PropRoom* propRoom);
     void updateSquareRoomTable(PropRoom* propRoom);
@@ -150,8 +150,8 @@ private:
 
     void reloadSensorsFromDB(QTreeWidgetItem* roomItem);
     bool insertSensorTable(PropSensor* propSensor);
-    bool updateNameSensorTable(PropSensor* propSensor);
-    bool updateTypeSensorTable(PropSensor* propSensor);
+    void updateNameSensorTable(PropSensor* propSensor);
+    void updateTypeSensorTable(PropSensor* propSensor);
     bool deleteSensorFromTable(PropSensor* propSensor);
 
     bool clearFromTables();

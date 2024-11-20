@@ -1194,17 +1194,26 @@ void SmartHomeConfig::deleteItem()
     {
         case House:
         {
-            deleteHouse(item);
+            if(!deleteHouse(item))
+            {
+                return;
+            }
             break;
         }
         case Room:
         {
-            deleteRoom(item);
+            if(!deleteRoom(item))
+            {
+                return;
+            }
             break;
         }
         case Sensor:
         {
-            deleteSensor(item);
+            if(!deleteSensor(item))
+            {
+                return;
+            }
             break;
         }
         default:
@@ -1427,7 +1436,7 @@ void SmartHomeConfig::logWrite(QString name, QString error)
     {
         QMessageBox::warning(this,
                              "Ошибка",
-                             QString("Не удалось созранить в файлЖ %1").arg(logPath),
+                             QString("Не удалось сохранить лог в файл %1").arg(logPath),
                              QMessageBox::Close,
                              QMessageBox::Close);
         return;

@@ -33,7 +33,10 @@ void SmartHomeConfig::reloadHousesFromDB()
 
         QTreeWidgetItem* houseItem = createHouseItem(propHouse);
 
-        reloadRoomsFromDB(houseItem);
+        if(!reloadRoomsFromDB(houseItem))
+        {
+            return;
+        }
     }
 
     ObjectsTree->expandAll();
@@ -122,7 +125,7 @@ void SmartHomeConfig::updateAddressHouseTable(PropHouse* propHouse)
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
+bool SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
@@ -138,7 +141,7 @@ void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
                              QMessageBox::Close);
 
         logWrite("reloadRoomsFromDB()", QString("[x] Error SELECT %1").arg(query.lastError().text()));
-        return;
+        return false;
     }
 
     while(query.next())
@@ -156,6 +159,8 @@ void SmartHomeConfig::reloadRoomsFromDB(QTreeWidgetItem* houseItem)
 
         reloadSensorsFromDB(roomItem);
     }
+
+    return true;
 }
 //------------------------------------------------------------------------------------
 
@@ -317,7 +322,7 @@ bool SmartHomeConfig::insertSensorTable(PropSensor* propSensor)
 }
 //------------------------------------------------------------------------------------
 
-bool SmartHomeConfig::updateNameSensorTable(PropSensor* propSensor)
+void SmartHomeConfig::updateNameSensorTable(PropSensor* propSensor)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
@@ -335,14 +340,12 @@ bool SmartHomeConfig::updateNameSensorTable(PropSensor* propSensor)
                              QMessageBox::Close);
 
         logWrite("updateNameSensorTable()", QString("[x] Error UPDATE name sensor %1").arg(query.lastError().text()));
-        return false;
+        return;
     }
-
-    return true;
 }
 //------------------------------------------------------------------------------------
 
-bool SmartHomeConfig::updateTypeSensorTable(PropSensor* propSensor)
+void SmartHomeConfig::updateTypeSensorTable(PropSensor* propSensor)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
@@ -360,10 +363,8 @@ bool SmartHomeConfig::updateTypeSensorTable(PropSensor* propSensor)
                              QMessageBox::Close);
 
         logWrite("updateTypeSensorTable()", QString("[x] Error UPDATE type_sensor %1").arg(query.lastError().text()));
-        return false;
+        return;
     }
-
-    return true;
 }
 //------------------------------------------------------------------------------------
 
@@ -371,7 +372,7 @@ bool SmartHomeConfig::deleteHouseFromTable(PropHouse* propHouse)
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString deleteHouseSQL = QString("DELETE sFROM Houses WHERE id_ = '%1';").arg(propHouse->id);
+    QString deleteHouseSQL = QString("DELETE FROM Houses WHERE id_ = '%1';").arg(propHouse->id);
 
     if(!query.exec(deleteHouseSQL))
     {
