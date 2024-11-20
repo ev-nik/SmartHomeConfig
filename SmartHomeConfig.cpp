@@ -20,6 +20,7 @@
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QFile>
+#include <QDateTime>
 //------------------------------------------------------------------------------------
 
 #define EXT_SCH ".shc"
@@ -1406,9 +1407,6 @@ QDataStream& operator << (QDataStream& out, const PropSensor& propSensor)
 }
 //------------------------------------------------------------------------------------
 
-
-
-
 void SmartHomeConfig::setLogPath(QString path)
 {
     if(path.isEmpty())
@@ -1419,15 +1417,13 @@ void SmartHomeConfig::setLogPath(QString path)
 
     logPath = path;
 }
-
+//------------------------------------------------------------------------------------
 
 void SmartHomeConfig::logWrite(QString name, QString error)
 {
     QFile fileOut(logPath);
-//    QFile::remove(logPath);
 
-                                /////////
-    if(!fileOut.open(QIODevice::WriteOnly))
+    if(!fileOut.open(QIODevice::Append))
     {
         QMessageBox::warning(this,
                              "Ошибка",
@@ -1443,7 +1439,7 @@ void SmartHomeConfig::logWrite(QString name, QString error)
 
     QTextStream writeStream(&fileOut);
 
-    writeStream << errorInfo;
+    writeStream << " " << QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss:zzz") << " " << errorInfo;
     fileOut.close();
 }
 //------------------------------------------------------------------------------------
