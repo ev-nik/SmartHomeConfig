@@ -7,17 +7,21 @@
 //----------------------------------------------------------------------
 
 #include "SmartHomeConfig.h"
-#include "Arguments.h"
+//#include "Arguments.h"
 //----------------------------------------------------------------------
 
 
 // -hn=localHost   || --hostName=localHost
-// -p=5432         || --port=5432
+// -po=5432         || --port=5432
 // -un=postgres    || --username=postgres
 // -pwd=19871      || --password=19871
 // -dbn=SQLPractic || --databasename=SQLPractic
+// "-p=E:/Config.smc\n" || "--path=E:/Config.smc"
 
-// -hN=localHost  -p=5432 -uN=postgres -pwd=19871 -dBN=SmartHomeConfig
+// -hN=localHost  -p=5432 -uN=postgres -pwd=19871 -dBN=SmartHomeConfig --path=E:/Config.smc
+
+
+
 
 
 void printHelp()
@@ -30,7 +34,7 @@ void printHelp()
              << "Example:\n"
              << "-hN=localhost\n"
 
-             << "-p or --port\n"
+             << "-po or --port\n"
              << "Example:\n"
              << "-p=5432\n"
 
@@ -44,7 +48,10 @@ void printHelp()
 
              << "-dBN or --dataBaseName\n"
              << "Example:\n"
-             << "-dBN=SmartHomeConfig\n";
+             << "-dBN=SmartHomeConfig\n"
+
+             << "-p=E:/Config.smc\n"
+             << "--path=E:/Config.smc";
 }
 //----------------------------------------------------------------------
 
@@ -145,9 +152,10 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    qDebug() << "CONNECT DB";
-
     SmartHomeConfig sHC;
+
+    sHC.setLogPath(arguments.pathOut);
+
     sHC.init(&dbase);
 
     bool isCreateHousesTable  = createHouseTable(dbase);

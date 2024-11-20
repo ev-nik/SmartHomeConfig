@@ -1,6 +1,7 @@
 #ifndef SMARTHOMECONFIG_H
 #define SMARTHOMECONFIG_H
 //------------------------------------------------------------------------------------
+#include "Arguments.h"
 
 #include <QWidget>
 #include <QTreeWidget>
@@ -96,6 +97,8 @@ private:
 
     QMenu* contextMenu;
 
+    QString logPath;
+
 public:
     QVector<PropHouse*> vectorHouse;
     QVector<PropRoom*>  vectorRoom;
@@ -105,9 +108,9 @@ public:
     PropRoom*   findObjectRoom  (QString id);
     PropSensor* findObjectSensor(QString id);
 
-    void deleteHouse(QTreeWidgetItem* item);
-    void deleteRoom(QTreeWidgetItem* item);
-    void deleteSensor(QTreeWidgetItem* item);
+    bool deleteHouse(QTreeWidgetItem* item);
+    bool deleteRoom(QTreeWidgetItem* item);
+    bool deleteSensor(QTreeWidgetItem* item);
 
 public slots:
     void addHouse();
@@ -128,27 +131,32 @@ public slots:
     void fillNameSensorPassport();
     void fillTypeSensorPassport();
 
+public:
+    void setLogPath(QString logPath);
+
 private:
     void reloadHousesFromDB();
     bool insertHouseTable(PropHouse* propHouse);
     void updateNameHouseTable(PropHouse* propHouse);
     void updateAddressHouseTable(PropHouse* propHouse);
-    void deleteHouseFromTable(PropHouse* propHouse);
+    bool deleteHouseFromTable(PropHouse* propHouse);
 
     void reloadRoomsFromDB(QTreeWidgetItem* houseItem);
     bool insertRoomTable(PropRoom* propRoom);
     void updateNameRoomTable(PropRoom* propRoom);
     void updateSquareRoomTable(PropRoom* propRoom);
     void updateWindowRoomTable(PropRoom* propRoom);
-    void deleteRoomFromTable(PropRoom* propRoom);
+    bool deleteRoomFromTable(PropRoom* propRoom);
 
     void reloadSensorsFromDB(QTreeWidgetItem* roomItem);
     bool insertSensorTable(PropSensor* propSensor);
-    void updateNameSensorTable(PropSensor* propSensor);
-    void updateTypeSensorTable(PropSensor* propSensor);
-    void deleteSensorFromTable(PropSensor* propSensor);
+    bool updateNameSensorTable(PropSensor* propSensor);
+    bool updateTypeSensorTable(PropSensor* propSensor);
+    bool deleteSensorFromTable(PropSensor* propSensor);
 
     bool clearFromTables();
+
+    void logWrite(QString name, QString error);
 
 protected:
     bool eventFilter(QObject* obj, QEvent* event);

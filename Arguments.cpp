@@ -40,7 +40,7 @@ Arguments::Arguments(int argc, char* argv[])
             hostName = val;
         }
 
-        if(key == "-p" || key == "--port")
+        if(key == "-po" || key == "--port")
         {
             port = val.toInt();
         }
@@ -58,6 +58,11 @@ Arguments::Arguments(int argc, char* argv[])
         if(key == "-dBN" || key == "--dataBaseName")
         {
             dataBaseName = val;
+        }
+
+        if(key == "-p" || key == "--path")
+        {
+            pathOut = val;
         }
     }
 }

@@ -12,6 +12,7 @@ public:
     Arguments(int argc, char* argv[]);
     ~Arguments();
 
+    QString pathOut;
     QString hostName;
     QString userName;
     QString pwd;

@@ -19,6 +19,7 @@
 #include <QAction>
 #include <QDesktopServices>
 #include <QFileInfo>
+#include <QFile>
 //------------------------------------------------------------------------------------
 
 #define EXT_SCH ".shc"
@@ -1250,7 +1251,7 @@ void SmartHomeConfig::activButton(QTreeWidgetItem *item)
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::deleteHouse(QTreeWidgetItem* item)
+bool SmartHomeConfig::deleteHouse(QTreeWidgetItem* item)
 {
     for(int i = 0; i < item->childCount(); i++)
     {
@@ -1264,18 +1265,24 @@ void SmartHomeConfig::deleteHouse(QTreeWidgetItem* item)
 
     if(house != nullptr)
     {
-        deleteHouseFromTable(house);
+        if(!deleteHouseFromTable(house))
+        {
+            return false;
+        }
         vectorHouse.removeAll(house);
         delete house;
+
+        return true;
     }
     else
     {
         qWarning() << Q_FUNC_INFO << house << "The element is not found";
+        return false;
     }
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::deleteRoom(QTreeWidgetItem* item)
+bool SmartHomeConfig::deleteRoom(QTreeWidgetItem* item)
 {
     for(int i = 0; i < item->childCount(); i++)
     {
@@ -1290,18 +1297,24 @@ void SmartHomeConfig::deleteRoom(QTreeWidgetItem* item)
 
     if(room != nullptr)
     {
-        deleteRoomFromTable(room);
+        if(!deleteRoomFromTable(room))
+        {
+            return false;
+        }
         vectorRoom.removeAll(room);
         delete room;
+
+        return true;
     }
     else
     {
         qWarning() << Q_FUNC_INFO << idRoom << "The element in the vectorRoom not found";
+        return false;
     }
 }
 //------------------------------------------------------------------------------------
 
-void SmartHomeConfig::deleteSensor(QTreeWidgetItem* item)
+bool SmartHomeConfig::deleteSensor(QTreeWidgetItem* item)
 {
     QString idSensor = item->data(0, Qt::ToolTipRole).toString();
 
@@ -1309,13 +1322,20 @@ void SmartHomeConfig::deleteSensor(QTreeWidgetItem* item)
 
     if(sensor != nullptr)
     {
-        deleteSensorFromTable(sensor);
+        if(!deleteSensorFromTable(sensor))
+        {
+            return false;
+        }
+
         vectorSensor.removeAll(sensor);
         delete sensor;
+
+        return true;
     }
     else
     {
         qWarning() << Q_FUNC_INFO << idSensor << "The element in the vectorHouse not found";
+        return false;
     }
 }
 //------------------------------------------------------------------------------------
@@ -1385,3 +1405,73 @@ QDataStream& operator << (QDataStream& out, const PropSensor& propSensor)
     return out;
 }
 //------------------------------------------------------------------------------------
+
+
+
+
+void SmartHomeConfig::setLogPath(QString path)
+{
+    if(path.isEmpty())
+    {
+        logPath = "SMC.log";
+        return;
+    }
+
+    logPath = path;
+}
+
+
+void SmartHomeConfig::logWrite(QString name, QString error)
+{
+    QFile fileOut(logPath);
+//    QFile::remove(logPath);
+
+                                /////////
+    if(!fileOut.open(QIODevice::WriteOnly))
+    {
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             QString("Не удалось созранить в файлЖ %1").arg(logPath),
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+        return;
+    }
+
+    QString errorInfo = QString("%1 %2").arg(name, error);
+
+    qWarning() << errorInfo;
+
+    QTextStream writeStream(&fileOut);
+
+    writeStream << errorInfo;
+    fileOut.close();
+}
+//------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
