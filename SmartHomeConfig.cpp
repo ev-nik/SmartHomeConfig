@@ -42,7 +42,7 @@ SmartHomeConfig::SmartHomeConfig(QWidget* parent) : QWidget(parent)
     nextBlockSize = 0;
 
     { // Отображение окна по центру экрана
-        int width = 900;
+        int width  = 900;
         int height = 500;
 
         QRect screenRect = QApplication::desktop()->rect();
@@ -302,7 +302,8 @@ void SmartHomeConfig::load()
             }
             default:
             {
-                qWarning() << Q_FUNC_INFO << QString("Unknown type object: %1. Must been: House(%2) or Room(%3) or Sensor(%4)").arg(typeObject).arg(House).arg(Room).arg(Sensor);
+                QString eror = QString("Unknown type object: %1. Must been: House(%2) or Room(%3) or Sensor(%4)").arg(typeObject).arg(House).arg(Room).arg(Sensor);
+                logWrite("load()", eror);
                 break;
             }
         }
@@ -621,13 +622,13 @@ void SmartHomeConfig::addRoom()
 
     if(houseItem == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        logWrite("addRoom()", "The element in the tree is not selected");
         return;
     }
 
     if(houseItem->data(0, Qt::UserRole).toInt() != House)
     {
-        qWarning() << Q_FUNC_INFO << "The element  is not House";
+        logWrite("addRoom()", "The element is not House");
         return;
     }
 
@@ -667,13 +668,13 @@ void SmartHomeConfig::addSensor()
 
     if(roomItem == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        logWrite("addSensor()", "The element in the tree is not selected");
         return;
     }
 
     if(roomItem->data(0, Qt::UserRole).toInt() != Room)
     {
-        qWarning() << Q_FUNC_INFO << "The element  is not Room";
+        logWrite("addSensor()", "The element is not Room");
         return;
     }
 
@@ -748,7 +749,8 @@ void SmartHomeConfig::showPassport(QTreeWidgetItem* item)
 
             if(properties == nullptr)
             {
-                qWarning() << Q_FUNC_INFO << "The element in the vectorHouse not found";
+                logWrite("showPassport", "The element in the vectorHouse not found");
+
                 // 0 строка 1 ячейка          Дом
                 PassportTable->setCellWidget(0, 1, nameEdit);
 
@@ -894,14 +896,14 @@ void SmartHomeConfig::fillNameHousePassport()
     QLineEdit* nameEditPassport = qobject_cast<QLineEdit*>(sender());
     if(nameEditPassport == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
+        logWrite("fillNameHousePassport()", "Failed convert sender() to QLineEdit*");
         return;
     }
 
     QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
     if(ObjectsTreeItem == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        logWrite("fillNameHousePassport()", "The element in the tree is not selected");
         return;
     }
 
@@ -911,7 +913,7 @@ void SmartHomeConfig::fillNameHousePassport()
 
     if(house == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << idHouseItem << "The element in the vectorHouse not found";
+        logWrite("fillNameHousePassport()", "The element in the vectorHouse not found");
         return;
     }
 
@@ -928,7 +930,7 @@ void SmartHomeConfig::fillAddressHousePassport()
 
     if(addressEditPassport == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
+        logWrite("fillAddressHousePassport()", "Failed convert sender() to QLineEdit*");
         return;
     }
 
@@ -936,7 +938,7 @@ void SmartHomeConfig::fillAddressHousePassport()
     QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
     if(ObjectsTreeItem == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        logWrite("fillAddressHousePassport()", "The element in the tree is not selected");
         return;
     }
 
@@ -946,7 +948,7 @@ void SmartHomeConfig::fillAddressHousePassport()
 
     if(house == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << idHouseItem << "The elevent in the vectorHouse not found";
+        logWrite("fillAddressHousePassport()", "The elevent in the vectorHouse not found");
         return;
     }
 
@@ -961,14 +963,14 @@ void SmartHomeConfig::fillNameRoomPassport()
     QLineEdit* nameEditPassport = qobject_cast<QLineEdit*>(sender());
     if(nameEditPassport == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
+        logWrite("fillNameRoomPassport()", "Failed convert sender() to QLineEdit*");
         return;
     }
 
     QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
     if(ObjectsTreeItem == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        logWrite("fillNameRoomPassport()", "The element in the tree is not selected");
         return;
     }
 
@@ -978,7 +980,7 @@ void SmartHomeConfig::fillNameRoomPassport()
 
     if(room == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << idRoomItem << "The element in thr vectorRoom not found";
+        logWrite("fillNameRoomPassport()", "The element in thr vectorRoom not found");
         return;
     }
 
@@ -996,14 +998,14 @@ void SmartHomeConfig::fillSquareRoomPassport()
     QDoubleSpinBox* squareEditPassport = qobject_cast<QDoubleSpinBox*>(sender());
     if(squareEditPassport == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
+        logWrite("fillSquareRoomPassport()", "Failed convert sender() to QLineEdit*");
         return;
     }
 
     QTreeWidgetItem* ObjectTreeItem = ObjectsTree->currentItem();
     if(ObjectTreeItem == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        logWrite("fillSquareRoomPassport()", "The element in the tree is not selected");
         return;
     }
 
@@ -1013,7 +1015,7 @@ void SmartHomeConfig::fillSquareRoomPassport()
 
     if(room == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << idRoomItem << "The element in the vectorRoom not found";
+        logWrite("fillSquareRoomPassport()", "The element in the vectorRoom not found");
         return;
     }
 
@@ -1028,7 +1030,7 @@ void SmartHomeConfig::fillWindowRoomPassport(int count)
     QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
     if(ObjectsTreeItem == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        logWrite("fillWindowRoomPassport()", "The element in the tree is not selected");
         return;
     }
 
@@ -1038,7 +1040,7 @@ void SmartHomeConfig::fillWindowRoomPassport(int count)
 
     if(room == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << idRoomItem << "The element in thr vectorRoom not found";
+        logWrite("fillWindowRoomPassport()", "The element in thr vectorRoom not found");
         return;
     }
 
@@ -1053,14 +1055,14 @@ void SmartHomeConfig::fillNameSensorPassport()
     QLineEdit* nameEditPassport = qobject_cast<QLineEdit*>(sender());
     if(nameEditPassport == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
+        logWrite("fillNameSensorPassport()", "Failed convert sender() to QLineEdit*");
         return;
     }
 
     QTreeWidgetItem* ObjectTreeItem = ObjectsTree->currentItem();
     if(ObjectTreeItem == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        logWrite("fillNameSensorPassport()", "The element in the tree is not selected");
         return;
     }
 
@@ -1070,7 +1072,7 @@ void SmartHomeConfig::fillNameSensorPassport()
 
     if(sensor == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << idSensorItem << "The element in the vectorSensor not found";
+        logWrite("fillNameSensorPassport()", "The element in the vectorSensor not found");
         return;
     }
 
@@ -1086,14 +1088,14 @@ void SmartHomeConfig::fillTypeSensorPassport()
     QComboBox* cBoxEditPassport = qobject_cast<QComboBox*>(sender());
     if(cBoxEditPassport == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "Failed convert sender() to QLineEdit*";
+        logWrite("fillTypeSensorPassport()", "Failed convert sender() to QLineEdit*");
         return;
     }
 
     QTreeWidgetItem* ObjectsTreeItem = ObjectsTree->currentItem();
     if(ObjectsTreeItem == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        logWrite("fillTypeSensorPassport()", "The element in the tree is not selected");
         return;
     }
 
@@ -1103,7 +1105,7 @@ void SmartHomeConfig::fillTypeSensorPassport()
 
     if(sensor == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << idSensorItem << "The element in the vectorHouse not found";
+        logWrite("fillTypeSensorPassport()", "The element in the vectorHouse not found");
         return;
     }
 
@@ -1184,7 +1186,7 @@ void SmartHomeConfig::deleteItem()
 
     if(item == nullptr)
     {
-        qWarning() << Q_FUNC_INFO << "The element in the tree is not selected";
+        logWrite("deleteItem()", "The element in the tree is not selected");
         return;
     }
 
@@ -1286,7 +1288,7 @@ bool SmartHomeConfig::deleteHouse(QTreeWidgetItem* item)
     }
     else
     {
-        qWarning() << Q_FUNC_INFO << house << "The element is not found";
+        logWrite("deleteHouse()", "The element is not found");
         return false;
     }
 }
@@ -1318,7 +1320,7 @@ bool SmartHomeConfig::deleteRoom(QTreeWidgetItem* item)
     }
     else
     {
-        qWarning() << Q_FUNC_INFO << idRoom << "The element in the vectorRoom not found";
+        logWrite("deleteRoom()", "The element in the vectorRoom not found");
         return false;
     }
 }
@@ -1344,7 +1346,7 @@ bool SmartHomeConfig::deleteSensor(QTreeWidgetItem* item)
     }
     else
     {
-        qWarning() << Q_FUNC_INFO << idSensor << "The element in the vectorHouse not found";
+        logWrite("deleteSensor()", "The element in the vectorHouse not found");
         return false;
     }
 }
@@ -1444,11 +1446,12 @@ void SmartHomeConfig::logWrite(QString name, QString error)
 
     QString errorInfo = QString("%1 %2").arg(name, error);
 
-    qWarning() << errorInfo;
+    QString dateTime = QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss:zzz");
+    qWarning() << dateTime << errorInfo;
 
     QTextStream writeStream(&fileOut);
 
-    writeStream << " " << QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss:zzz") << " " << errorInfo;
+    writeStream << dateTime << " " << errorInfo << "\n";
     fileOut.close();
 }
 //------------------------------------------------------------------------------------
