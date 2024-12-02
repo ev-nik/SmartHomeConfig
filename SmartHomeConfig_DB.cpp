@@ -434,11 +434,33 @@ bool SmartHomeConfig::deleteSensorFromTable(PropSensor* propSensor)
 }
 //------------------------------------------------------------------------------------
 
+bool SmartHomeConfig::deleteValueFromTable(PropSensor* propSensor)
+{
+    QSqlQuery query = QSqlQuery(*dbase);
+
+    QString deleteValueSQL = QString("DELETE FROM VALUES WHERE id_sensor = '%1';").arg(propSensor->id);
+
+    if(!query.exec(deleteValueSQL))
+    {
+        QMessageBox::warning(this,
+                             "Ошибка",
+                             "Ошибка при удалении значения",
+                             QMessageBox::Close,
+                             QMessageBox::Close);
+
+        logWrite("deleteValueFromTable()", QString("[x] Error DELETE VALUES %1").arg(query.lastError().text()));
+        return false;
+    }
+
+    return true;
+}
+//------------------------------------------------------------------------------------
+
 bool SmartHomeConfig::clearFromTables()
 {
     QSqlQuery query = QSqlQuery(*dbase);
 
-    QString clearSQL = "DELETE FROM Houses; DELETE FROM Rooms; DELETE FROM Sensors;";
+    QString clearSQL = "DELETE FROM Houses; DELETE FROM Rooms; DELETE FROM Sensors; DELETE FROM Values";
 
     if(!query.exec(clearSQL))
     {

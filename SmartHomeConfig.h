@@ -154,6 +154,8 @@ private:
     void updateTypeSensorTable(PropSensor* propSensor);
     bool deleteSensorFromTable(PropSensor* propSensor);
 
+    bool deleteValueFromTable(PropSensor* propSensor);
+
     bool clearFromTables();
 
     void logWrite(QString name, QString error);

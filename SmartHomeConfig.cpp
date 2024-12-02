@@ -1334,6 +1334,11 @@ bool SmartHomeConfig::deleteSensor(QTreeWidgetItem* item)
 
     if(sensor != nullptr)
     {
+        if(!deleteValueFromTable(sensor))
+        {
+            return false;
+        }
+
         if(!deleteSensorFromTable(sensor))
         {
             return false;

@@ -7,7 +7,6 @@
 //----------------------------------------------------------------------
 
 #include "SmartHomeConfig.h"
-//#include "Arguments.h"
 //----------------------------------------------------------------------
 
 
@@ -19,9 +18,6 @@
 // "-p=E:/Config.smc\n" || "--path=E:/Config.smc"
 
 // -hN=localHost  -p=5432 -uN=postgres -pwd=19871 -dBN=SmartHomeConfig --path=E:/Config.smc
-
-
-
 
 
 void printHelp()
@@ -123,6 +119,29 @@ bool createSensorTable(QSqlDatabase& dbase)
 }
 //----------------------------------------------------------------------
 
+bool createValuesTable(QSqlDatabase& dbase)
+{
+    QSqlQuery query = QSqlQuery(dbase);
+
+    QString createValuesTable = "CREATE TABLE IF NOT EXISTS Values("
+                                "id_ VARCHAR(38) PRIMARY KEY NOT NULL,"
+                                "id_sensor       VARCHAR(38) NOT NULL,"
+                                "date_time       VARCHAR(38),"
+                                "value           INT"
+                                ")";
+
+    if(!query.exec(createValuesTable))
+    {
+        qWarning() << "[x] Error create Values table" << query.lastError().text();
+        return false;
+    }
+
+    qDebug() << "[v] Success create Values table";
+    return true;
+}
+//----------------------------------------------------------------------
+
+
 
 int main(int argc, char* argv[])
 {
@@ -161,8 +180,9 @@ int main(int argc, char* argv[])
     bool isCreateHousesTable  = createHouseTable(dbase);
     bool isCreateRoomsTable   = createRoomTable(dbase);
     bool isCreateSensorsTable = createSensorTable(dbase);
+    bool isCreateValuesTable  = createValuesTable(dbase);
 
-    if(!isCreateHousesTable || !isCreateRoomsTable || !isCreateSensorsTable)
+    if(!isCreateHousesTable || !isCreateRoomsTable || !isCreateSensorsTable || !isCreateValuesTable)
     {
         QMessageBox::warning(nullptr,
                              "Ошибка",
